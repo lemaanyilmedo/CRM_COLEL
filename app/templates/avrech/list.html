@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+
+{% block title %}רשימת אברכים - מערכת CRM כוללים{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-users me-2"></i>רשימת אברכים
+    </h2>
+    <a href="{{ url_for('avrech.add') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>הוסף אברך חדש
+    </a>
+</div>
+
+<!-- חיפוש וסינון -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">חיפוש</label>
+                <input type="text" class="form-control" name="search" value="{{ search }}" 
+                       placeholder="שם, תעודת זהות...">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">סניף</label>
+                <select name="branch_id" class="form-select">
+                    <option value="">כל הסניפים</option>
+                    {% for branch in branches %}
+                    <option value="{{ branch.id }}" {{ 'selected' if branch.id == selected_branch }}>
+                        {{ branch.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <div>
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="fas fa-search me-1"></i>חפש
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- רשימת אברכים -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">אברכים פעילים</h5>
+        <span class="badge bg-primary">{{ avrechim|length }} אברכים</span>
+    </div>
+    <div class="card-body">
+        {% if avrechim %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>שם מלא</th>
+                        <th>תעודת זהות</th>
+                        <th>סניף</th>
+                        <th>פרופיל תשלום</th>
+                        <th>טלפון</th>
+                        <th>פעולות</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for avrech in avrechim %}
+                    <tr>
+                        <td>
+                            <strong>{{ avrech.full_name }}</strong>
+                        </td>
+                        <td>
+                            <code>{{ avrech.id_number }}</code>
+                        </td>
+                        <td>
+                            {% if avrech.branch %}
+                                <span class="badge bg-secondary">{{ avrech.branch.name }}</span>
+                            {% else %}
+                                <span class="text-muted">ללא סניף</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-info">{{ avrech.payment_profile.name }}</span>
+                        </td>
+                        <td>
+                            {% if avrech.phone %}
+                                <a href="tel:{{ avrech.phone }}" class="text-decoration-none">
+                                    {{ avrech.phone }}
+                                </a>
+                            {% else %}
+                                <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="{{ url_for('avrech.view', id=avrech.id) }}" 
+                                   class="btn btn-outline-primary" title="צפייה">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{{ url_for('avrech.edit', id=avrech.id) }}" 
+                                   class="btn btn-outline-secondary" title="עריכה">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('attendance.history', avrech_id=avrech.id) }}" 
+                                   class="btn btn-outline-info" title="היסטוריית נוכחות">
+                                    <i class="fas fa-calendar-alt"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-users fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">לא נמצאו אברכים</h5>
+            {% if search or selected_branch %}
+            <p class="text-muted">נסה לשנות את פרמטרי החיפוש</p>
+            <a href="{{ url_for('avrech.list') }}" class="btn btn-outline-secondary">
+                <i class="fas fa-undo me-2"></i>נקה חיפוש
+            </a>
+            {% else %}
+            <p class="text-muted">התחל בהוספת אברכים למערכת</p>
+            <a href="{{ url_for('avrech.add') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>הוסף אברך ראשון
+            </a>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

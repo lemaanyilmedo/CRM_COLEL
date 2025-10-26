@@ -1,0 +1,239 @@
+/* Custom CSS for Kolel CRM System */
+
+:root {
+    --primary-color: #2563eb;
+    --secondary-color: #64748b;
+    --success-color: #059669;
+    --warning-color: #d97706;
+    --danger-color: #dc2626;
+    --light-bg: #f8fafc;
+    --dark-text: #1e293b;
+}
+
+/* RTL specific styles */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    direction: rtl;
+    text-align: right;
+}
+
+/* Navigation styles */
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.25rem;
+}
+
+.navbar-nav .nav-link {
+    font-weight: 500;
+    transition: color 0.2s ease;
+}
+
+.navbar-nav .nav-link:hover {
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+/* Card styles */
+.card {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+    color: white;
+    border-radius: 12px 12px 0 0 !important;
+    font-weight: 600;
+}
+
+/* Button styles */
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1d4ed8, var(--primary-color));
+}
+
+/* Table styles */
+.table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table thead th {
+    background-color: var(--light-bg);
+    font-weight: 600;
+    color: var(--dark-text);
+    border: none;
+}
+
+.table-hover tbody tr:hover {
+    background-color: rgba(37, 99, 235, 0.05);
+}
+
+/* Badge styles */
+.badge {
+    font-size: 0.75em;
+    font-weight: 500;
+    border-radius: 6px;
+}
+
+/* Form styles */
+.form-control, .form-select {
+    border-radius: 8px;
+    border: 2px solid #e2e8f0;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(37, 99, 235, 0.25);
+}
+
+.form-floating > label {
+    right: 12px;
+    left: auto;
+}
+
+/* Alert styles */
+.alert {
+    border-radius: 8px;
+    border: none;
+}
+
+.alert-success {
+    background-color: #f0fdf4;
+    color: #15803d;
+}
+
+.alert-danger {
+    background-color: #fef2f2;
+    color: #dc2626;
+}
+
+.alert-info {
+    background-color: #eff6ff;
+    color: #2563eb;
+}
+
+/* Statistics cards */
+.stats-card {
+    border-radius: 12px;
+    padding: 1.5rem;
+    color: white;
+    background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+    border: none;
+}
+
+.stats-card.success {
+    background: linear-gradient(135deg, var(--success-color), #10b981);
+}
+
+.stats-card.warning {
+    background: linear-gradient(135deg, var(--warning-color), #fb923c);
+}
+
+.stats-card.danger {
+    background: linear-gradient(135deg, var(--danger-color), #ef4444);
+}
+
+/* Footer */
+footer {
+    margin-top: auto;
+    background-color: var(--light-bg) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container-fluid {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    
+    .btn-group-sm .btn {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.8rem;
+    }
+}
+
+/* Animation classes */
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Loading spinner */
+.loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Success/Error indicators */
+.success-indicator {
+    color: var(--success-color);
+    font-weight: bold;
+}
+
+.error-indicator {
+    color: var(--danger-color);
+    font-weight: bold;
+}
+
+/* Custom tooltip */
+.tooltip-inner {
+    background-color: var(--dark-text);
+    color: white;
+    border-radius: 6px;
+}
+
+/* Print styles */
+@media print {
+    .navbar, .btn, .card-header {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #dee2e6 !important;
+        box-shadow: none !important;
+    }
+    
+    .table {
+        font-size: 12px;
+    }
+}
