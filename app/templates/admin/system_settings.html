@@ -1,0 +1,376 @@
+{% extends "base.html" %}
+
+{% block title %}הגדרות מערכת{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-cogs me-2"></i>הגדרות מערכת
+            </h2>
+            <div>
+                <button type="button" class="btn btn-success" onclick="saveAllSettings()">
+                    <i class="fas fa-save me-2"></i>שמור הכל
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- הגדרות כלליות -->
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-building me-2"></i>הגדרות כלליות
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="generalSettings">
+                    <div class="mb-3">
+                        <label for="system_name" class="form-label">שם המערכת</label>
+                        <input type="text" class="form-control" id="system_name" value="מערכת ניהול כולל">
+                    </div>
+                    <div class="mb-3">
+                        <label for="organization_name" class="form-label">שם הארגון</label>
+                        <input type="text" class="form-control" id="organization_name" value="כולל למען ילמדו">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contact_email" class="form-label">אימייל יצירת קשר</label>
+                        <input type="email" class="form-control" id="contact_email" value="admin@kolel.org">
+                    </div>
+                    <div class="mb-3">
+                        <label for="contact_phone" class="form-label">טלפון יצירת קשר</label>
+                        <input type="tel" class="form-control" id="contact_phone" value="02-1234567">
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- הגדרות זמן ונוכחות -->
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>הגדרות זמן ונוכחות
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="timeSettings">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="default_start_time" class="form-label">שעת התחלה ברירת מחדל</label>
+                            <input type="time" class="form-control" id="default_start_time" value="08:00">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="default_end_time" class="form-label">שעת סיום ברירת מחדל</label>
+                            <input type="time" class="form-control" id="default_end_time" value="16:00">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="late_threshold" class="form-label">סף איחור (דקות)</label>
+                        <input type="number" class="form-control" id="late_threshold" value="15" min="0">
+                    </div>
+                    <div class="mt-3">
+                        <label for="grace_period" class="form-label">תקופת חסד (דקות)</label>
+                        <input type="number" class="form-control" id="grace_period" value="5" min="0">
+                    </div>
+                    <div class="mt-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="weekend_friday" checked>
+                            <label class="form-check-label" for="weekend_friday">
+                                יום שישי - יום מנוחה
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="weekend_saturday" checked>
+                            <label class="form-check-label" for="weekend_saturday">
+                                יום שבת - יום מנוחה
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- הגדרות תשלומים -->
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-shekel-sign me-2"></i>הגדרות תשלומים
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="paymentSettings">
+                    <div class="mb-3">
+                        <label for="default_daily_amount" class="form-label">מלגה יומית ברירת מחדל (₪)</label>
+                        <input type="number" class="form-control" id="default_daily_amount" value="150" min="0" step="0.01">
+                    </div>
+                    <div class="mb-3">
+                        <label for="late_penalty_rate" class="form-label">קיזוז לדקת איחור (₪)</label>
+                        <input type="number" class="form-control" id="late_penalty_rate" value="2" min="0" step="0.01">
+                    </div>
+                    <div class="mb-3">
+                        <label for="early_exit_penalty" class="form-label">קיזוז ליציאה מוקדמת לדקה (₪)</label>
+                        <input type="number" class="form-control" id="early_exit_penalty" value="1.5" min="0" step="0.01">
+                    </div>
+                    <div class="mb-3">
+                        <label for="taanit_dibur_bonus" class="form-label">בונוס תענית דיבור (₪)</label>
+                        <input type="number" class="form-control" id="taanit_dibur_bonus" value="20" min="0" step="0.01">
+                    </div>
+                    <div class="mb-3">
+                        <label for="payment_day" class="form-label">יום תשלום בחודש</label>
+                        <select class="form-select" id="payment_day">
+                            <option value="1">ראשון לחודש</option>
+                            <option value="15" selected>15 לחודש</option>
+                            <option value="30">אחרון לחודש</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- הגדרות מערכת -->
+    <div class="col-lg-6">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-database me-2"></i>הגדרות מערכת
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="systemSettings">
+                    <div class="mb-3">
+                        <label for="backup_frequency" class="form-label">תדירות גיבוי</label>
+                        <select class="form-select" id="backup_frequency">
+                            <option value="daily" selected>יומי</option>
+                            <option value="weekly">שבועי</option>
+                            <option value="monthly">חודשי</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="session_timeout" class="form-label">זמן פגיאה לסשן (דקות)</label>
+                        <input type="number" class="form-control" id="session_timeout" value="60" min="5">
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="enable_notifications" checked>
+                            <label class="form-check-label" for="enable_notifications">
+                                הפעלת התראות מערכת
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="enable_sms" checked>
+                            <label class="form-check-label" for="enable_sms">
+                                הפעלת SMS
+                            </label>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="enable_email" checked>
+                            <label class="form-check-label" for="enable_email">
+                                הפעלת אימייל
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- כפתורי פעולה -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-tools me-2"></i>פעולות מערכת
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-info w-100 mb-2" onclick="backupDatabase()">
+                            <i class="fas fa-download me-2"></i>גיבוי מסד נתונים
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-warning w-100 mb-2" onclick="clearCache()">
+                            <i class="fas fa-broom me-2"></i>נקה זיכרון מטמון
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-secondary w-100 mb-2" onclick="exportData()">
+                            <i class="fas fa-file-export me-2"></i>ייצא נתונים
+                        </button>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="button" class="btn btn-primary w-100 mb-2" onclick="systemReport()">
+                            <i class="fas fa-chart-line me-2"></i>דוח מערכת
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- סטטיסטיקות מערכת -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>סטטיסטיקות מערכת
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-2">
+                        <div class="border rounded p-3">
+                            <h4 class="text-primary">45</h4>
+                            <p class="mb-0 small">אברכים פעילים</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="border rounded p-3">
+                            <h4 class="text-success">3</h4>
+                            <p class="mb-0 small">סניפים</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="border rounded p-3">
+                            <h4 class="text-info">12</h4>
+                            <p class="mb-0 small">משתמשים</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="border rounded p-3">
+                            <h4 class="text-warning">1,247</h4>
+                            <p class="mb-0 small">רשומות נוכחות</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="border rounded p-3">
+                            <h4 class="text-danger">25MB</h4>
+                            <p class="mb-0 small">גודל מסד נתונים</p>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="border rounded p-3">
+                            <h4 class="text-secondary">99.9%</h4>
+                            <p class="mb-0 small">זמינות מערכת</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function saveAllSettings() {
+    // כאן נשמור את כל ההגדרות
+    const settings = {
+        general: {
+            system_name: document.getElementById('system_name').value,
+            organization_name: document.getElementById('organization_name').value,
+            contact_email: document.getElementById('contact_email').value,
+            contact_phone: document.getElementById('contact_phone').value
+        },
+        time: {
+            default_start_time: document.getElementById('default_start_time').value,
+            default_end_time: document.getElementById('default_end_time').value,
+            late_threshold: document.getElementById('late_threshold').value,
+            grace_period: document.getElementById('grace_period').value,
+            weekend_friday: document.getElementById('weekend_friday').checked,
+            weekend_saturday: document.getElementById('weekend_saturday').checked
+        },
+        payment: {
+            default_daily_amount: document.getElementById('default_daily_amount').value,
+            late_penalty_rate: document.getElementById('late_penalty_rate').value,
+            early_exit_penalty: document.getElementById('early_exit_penalty').value,
+            taanit_dibur_bonus: document.getElementById('taanit_dibur_bonus').value,
+            payment_day: document.getElementById('payment_day').value
+        },
+        system: {
+            backup_frequency: document.getElementById('backup_frequency').value,
+            session_timeout: document.getElementById('session_timeout').value,
+            enable_notifications: document.getElementById('enable_notifications').checked,
+            enable_sms: document.getElementById('enable_sms').checked,
+            enable_email: document.getElementById('enable_email').checked
+        }
+    };
+    
+    // שמירה למסד הנתונים (דרך AJAX)
+    fetch('/admin/save_settings', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(settings)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showAlert('ההגדרות נשמרו בהצלחה', 'success');
+        } else {
+            showAlert('שגיאה בשמירת ההגדרות', 'error');
+        }
+    })
+    .catch(error => {
+        showAlert('שגיאה בחיבור לשרת', 'error');
+    });
+}
+
+function backupDatabase() {
+    showAlert('מתחיל גיבוי מסד הנתונים...', 'info');
+    // כאן נקרא לפונקציית גיבוי
+}
+
+function clearCache() {
+    showAlert('מנקה זיכרון מטמון...', 'info');
+    // כאן נקרא לפונקציית ניקוי מטמון
+}
+
+function exportData() {
+    showAlert('מתחיל ייצוא נתונים...', 'info');
+    // כאן נקרא לפונקציית ייצוא
+}
+
+function systemReport() {
+    window.open('/admin/system_report', '_blank');
+}
+
+function showAlert(message, type) {
+    const alertClass = type === 'success' ? 'alert-success' : 
+                      type === 'error' ? 'alert-error' : 
+                      type === 'info' ? 'alert-info' : 'alert-warning';
+    
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert ${alertClass} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    document.body.insertBefore(alertDiv, document.body.firstChild);
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 5000);
+}
+</script>
+{% endblock %}

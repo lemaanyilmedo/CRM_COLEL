@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}ניהול סניפים{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-building me-2"></i>ניהול סניפים
+            </h2>
+            <div>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBranchModal">
+                    <i class="fas fa-plus me-2"></i>הוסף סניף
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-list me-2"></i>רשימת סניפים
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if branches %}
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>שם הסניף</th>
+                            <th>כתובת</th>
+                            <th>מספר אברכים</th>
+                            <th>סטטוس</th>
+                            <th>תאריך יצירה</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for branch in branches %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <div class="bg-success text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                         style="width: 40px; height: 40px;">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                    <div>
+                                        <div class="fw-bold">{{ branch.name }}</div>
+                                        <div class="text-muted small">{{ branch.description or 'אין תיאור' }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                {% if branch.address %}
+                                    {{ branch.address }}
+                                {% else %}
+                                    <span class="text-muted">לא הוזנה כתובת</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="badge bg-primary">{{ branch.avrechim|length }} אברכים</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-success">פעיל</span>
+                            </td>
+                            <td>
+                                {{ branch.created_at.strftime('%d/%m/%Y') if branch.created_at else '-' }}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-outline-primary" title="עריכה">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <a href="{{ url_for('avrech.list', branch_id=branch.id) }}" 
+                                       class="btn btn-outline-info" title="צפייה באברכים">
+                                        <i class="fas fa-users"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-outline-danger" title="מחיקה">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center text-muted py-4">
+                <i class="fas fa-building fa-3x mb-3"></i>
+                <h5>אין סניפים במערכת</h5>
+                <p>התחל בהוספת הסניף הראשון</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- מודל הוספת סניף -->
+<div class="modal fade" id="addBranchModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">הוספת סניף חדש</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">שם הסניף <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">תיאור</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">כתובת</label>
+                        <textarea class="form-control" id="address" name="address" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button>
+                    <button type="submit" class="btn btn-primary">הוסף סניף</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

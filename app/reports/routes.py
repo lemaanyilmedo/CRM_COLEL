@@ -48,6 +48,76 @@ def monthly():
                          selected_year=year,
                          selected_branch=branch_id)
 
+@bp.route('/annual')
+@login_required
+def annual():
+    """דוח שנתי"""
+    year = request.args.get('year', type=int, default=date.today().year)
+    branch_id = request.args.get('branch_id', type=int)
+    
+    query = Avrech.query.filter_by(is_active=True)
+    if branch_id:
+        query = query.filter_by(branch_id=branch_id)
+    
+    avrechim = query.order_by(Avrech.first_name, Avrech.last_name).all()
+    
+    # חישוב נתונים שנתיים
+    annual_data = []
+    for avrech in avrechim:
+        yearly_total = 0
+        monthly_data = []
+        
+        for month in range(1, 13):
+            monthly_summary = avrech.get_monthly_attendance_summary(year, month)
+            monthly_amount = sum([log.net_daily_amount or 0 for log in monthly_summary['logs']])
+            yearly_total += monthly_amount
+            
+            monthly_data.append({
+                'month': month,
+                'amount': monthly_amount,
+                'present_days': monthly_summary['present_days']
+            })
+        
+        annual_data.append({
+            'avrech': avrech,
+            'yearly_total': yearly_total,
+            'monthly_data': monthly_data
+        })
+    
+    return render_template('reports/annual.html',
+                         annual_data=annual_data,
+                         selected_year=year,
+                         selected_branch=branch_id)
+
+@bp.route('/attendance_summary')
+@login_required
+def attendance_summary():
+    """סיכום נוכחות"""
+    month = request.args.get('month', type=int, default=date.today().month)
+    year = request.args.get('year', type=int, default=date.today().year)
+    
+    avrechim = Avrech.query.filter_by(is_active=True).all()
+    
+    summary_data = []
+    for avrech in avrechim:
+        monthly_summary = avrech.get_monthly_attendance_summary(year, month)
+        
+        summary_data.append({
+            'avrech': avrech,
+            'present_days': monthly_summary['present_days'],
+            'absent_days': monthly_summary['absent_days'],
+            'late_count': len([log for log in monthly_summary['logs'] if log.late_minutes > 0]),
+            'total_late_minutes': monthly_summary['total_late_minutes'],
+            'attendance_percentage': (monthly_summary['present_days'] / 
+                                    (monthly_summary['present_days'] + monthly_summary['absent_days']) * 100) 
+                                    if (monthly_summary['present_days'] + monthly_summary['absent_days']) > 0 else 0
+        })
+    
+    return render_template('reports/attendance_summary.html',
+                         summary_data=summary_data,
+                         selected_month=month,
+                         selected_year=year)
+
 @bp.route('/export_csv')
 @login_required
 def export_csv():

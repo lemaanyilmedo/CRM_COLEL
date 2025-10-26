@@ -45,91 +45,267 @@
 </div>
 
 <!-- רשימת אברכים -->
-<div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h5 class="mb-0">אברכים פעילים</h5>
-        <span class="badge bg-primary">{{ avrechim|length }} אברכים</span>
+<div class="table-container">
+    <div class="table-header">
+        <h4 class="table-title">אברכים פעילים ({{ avrechim|length }})</h4>
+        <div class="table-actions">
+            <button type="button" class="btn btn-outline-light btn-sm" onclick="exportTable()">
+                <i class="fas fa-download me-1"></i>ייצא
+            </button>
+            <a href="{{ url_for('avrech.add') }}" class="btn btn-light btn-sm">
+                <i class="fas fa-plus me-1"></i>הוסף אברך
+            </a>
+        </div>
     </div>
-    <div class="card-body">
-        {% if avrechim %}
-        <div class="table-responsive">
-            <table class="table table-hover">
-                <thead class="table-light">
-                    <tr>
-                        <th>שם מלא</th>
-                        <th>תעודת זהות</th>
-                        <th>סניף</th>
-                        <th>פרופיל תשלום</th>
-                        <th>טלפון</th>
-                        <th>פעולות</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for avrech in avrechim %}
-                    <tr>
-                        <td>
-                            <strong>{{ avrech.full_name }}</strong>
-                        </td>
-                        <td>
-                            <code>{{ avrech.id_number }}</code>
-                        </td>
-                        <td>
-                            {% if avrech.branch %}
-                                <span class="badge bg-secondary">{{ avrech.branch.name }}</span>
-                            {% else %}
-                                <span class="text-muted">ללא סניף</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <span class="badge bg-info">{{ avrech.payment_profile.name }}</span>
-                        </td>
-                        <td>
-                            {% if avrech.phone %}
-                                <a href="tel:{{ avrech.phone }}" class="text-decoration-none">
-                                    {{ avrech.phone }}
-                                </a>
-                            {% else %}
-                                <span class="text-muted">-</span>
-                            {% endif %}
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="{{ url_for('avrech.view', id=avrech.id) }}" 
-                                   class="btn btn-outline-primary" title="צפייה">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{{ url_for('avrech.edit', id=avrech.id) }}" 
-                                   class="btn btn-outline-secondary" title="עריכה">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="{{ url_for('attendance.history', avrech_id=avrech.id) }}" 
-                                   class="btn btn-outline-info" title="היסטוריית נוכחות">
-                                    <i class="fas fa-calendar-alt"></i>
-                                </a>
+    
+    <div class="table-filters">
+        <div class="table-search">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="חיפוש לפי שם, ת.ז. או טלפון..." id="tableSearch">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+            </div>
+        </div>
+        <div class="filter-group">
+            <label>סניף:</label>
+            <select class="form-select form-select-sm" id="branchFilter">
+                <option value="">כל הסניפים</option>
+                {% for branch in branches %}
+                <option value="{{ branch.name }}">{{ branch.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label>סטטוס:</label>
+            <select class="form-select form-select-sm" id="statusFilter">
+                <option value="">הכל</option>
+                <option value="active">פעיל</option>
+                <option value="inactive">לא פעיל</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="bulk-actions">
+        <div class="d-flex align-items-center">
+            <button type="button" class="btn btn-sm btn-danger bulk-action-btn" data-action="delete">
+                <i class="fas fa-trash me-1"></i>מחק
+            </button>
+            <button type="button" class="btn btn-sm btn-success bulk-action-btn" data-action="activate">
+                <i class="fas fa-check me-1"></i>הפעל
+            </button>
+            <button type="button" class="btn btn-sm btn-warning bulk-action-btn" data-action="deactivate">
+                <i class="fas fa-pause me-1"></i>השבת
+            </button>
+            <button type="button" class="btn btn-sm btn-info bulk-action-btn" data-action="export">
+                <i class="fas fa-download me-1"></i>ייצא נבחרים
+            </button>
+        </div>
+        <div class="bulk-actions-text"></div>
+    </div>
+    
+    {% if avrechim %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th style="width: 40px;">
+                    <input type="checkbox" class="select-all-checkbox">
+                </th>
+                <th class="sortable">שם מלא</th>
+                <th class="sortable">תעודת זהות</th>
+                <th class="sortable">סניף</th>
+                <th>פרופיל תשלום</th>
+                <th>טלפון</th>
+                <th>סטטוס</th>
+                <th class="table-actions-cell">פעולות</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for avrech in avrechim %}
+            <tr data-edit-url="{{ url_for('avrech.edit', id=avrech.id) }}" data-id="{{ avrech.id }}">
+                <td>
+                    <input type="checkbox" class="row-checkbox" value="{{ avrech.id }}">
+                </td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
+                                 style="width: 40px; height: 40px;">
+                                <span class="fw-bold">{{ avrech.first_name[0] }}{{ avrech.last_name[0] }}</span>
                             </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                        </div>
+                        <div>
+                            <div class="fw-bold">{{ avrech.full_name }}</div>
+                            <div class="text-muted small">נוסף: {{ avrech.created_at.strftime('%d/%m/%Y') if avrech.created_at else 'לא ידוע' }}</div>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <code class="bg-light px-2 py-1 rounded">{{ avrech.id_number }}</code>
+                </td>
+                <td>
+                    {% if avrech.branch %}
+                        <span class="badge bg-secondary">{{ avrech.branch.name }}</span>
+                    {% else %}
+                        <span class="text-muted">ללא סניף</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <span class="badge bg-info">{{ avrech.payment_profile.name if avrech.payment_profile else 'לא מוגדר' }}</span>
+                </td>
+                <td>
+                    {% if avrech.phone %}
+                        <a href="tel:{{ avrech.phone }}" class="text-decoration-none">
+                            <i class="fas fa-phone me-1"></i>{{ avrech.phone }}
+                        </a>
+                    {% else %}
+                        <span class="text-muted">-</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if avrech.status == 'active' %}
+                        <span class="status-badge status-active">פעיל</span>
+                    {% else %}
+                        <span class="status-badge status-inactive">לא פעיל</span>
+                    {% endif %}
+                </td>
+                <td class="table-actions-cell">
+                    <div class="btn-group btn-group-sm">
+                        <a href="{{ url_for('avrech.view', id=avrech.id) }}" 
+                           class="btn btn-table-action btn-outline-primary" title="צפייה">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <a href="{{ url_for('avrech.edit', id=avrech.id) }}" 
+                           class="btn btn-table-action btn-outline-secondary" title="עריכה">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{{ url_for('attendance.history', avrech_id=avrech.id) }}" 
+                           class="btn btn-table-action btn-outline-info" title="היסטוריית נוכחות">
+                            <i class="fas fa-calendar-alt"></i>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div class="table-pagination">
+        <div class="pagination-info">
+            מציג {{ avrechim|length }} תוצאות
         </div>
+        <nav class="pagination-controls">
+            <!-- Pagination will be added here if needed -->
+        </nav>
+    </div>
+    {% else %}
+    <div class="table-empty">
+        <i class="fas fa-users"></i>
+        <h5>לא נמצאו אברכים</h5>
+        {% if search or selected_branch %}
+        <p>נסה לשנות את פרמטרי החיפוש</p>
+        <a href="{{ url_for('avrech.list') }}" class="btn btn-outline-secondary">
+            <i class="fas fa-undo me-2"></i>נקה חיפוש
+        </a>
         {% else %}
-        <div class="text-center py-5">
-            <i class="fas fa-users fa-3x text-muted mb-3"></i>
-            <h5 class="text-muted">לא נמצאו אברכים</h5>
-            {% if search or selected_branch %}
-            <p class="text-muted">נסה לשנות את פרמטרי החיפוש</p>
-            <a href="{{ url_for('avrech.list') }}" class="btn btn-outline-secondary">
-                <i class="fas fa-undo me-2"></i>נקה חיפוש
-            </a>
-            {% else %}
-            <p class="text-muted">התחל בהוספת אברכים למערכת</p>
-            <a href="{{ url_for('avrech.add') }}" class="btn btn-primary">
-                <i class="fas fa-plus me-2"></i>הוסף אברך ראשון
-            </a>
-            {% endif %}
-        </div>
+        <p>התחל בהוספת אברכים למערכת</p>
+        <a href="{{ url_for('avrech.add') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>הוסף אברך ראשון
+        </a>
         {% endif %}
     </div>
+    {% endif %}
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize table search
+    const searchInput = document.getElementById('tableSearch');
+    const branchFilter = document.getElementById('branchFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    
+    function filterTable() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const selectedBranch = branchFilter.value;
+        const selectedStatus = statusFilter.value;
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(function(row) {
+            const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+            const idNumber = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+            const phone = row.querySelector('td:nth-child(6)').textContent.toLowerCase();
+            const branch = row.querySelector('td:nth-child(4)').textContent;
+            const status = row.querySelector('td:nth-child(7) .status-badge').classList.contains('status-active') ? 'active' : 'inactive';
+            
+            const matchesSearch = name.includes(searchTerm) || idNumber.includes(searchTerm) || phone.includes(searchTerm);
+            const matchesBranch = !selectedBranch || branch.includes(selectedBranch);
+            const matchesStatus = !selectedStatus || status === selectedStatus;
+            
+            if (matchesSearch && matchesBranch && matchesStatus) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+        
+        updateVisibleCount();
+    }
+    
+    function updateVisibleCount() {
+        const visibleRows = document.querySelectorAll('tbody tr[style=""]').length;
+        const totalRows = document.querySelectorAll('tbody tr').length;
+        const paginationInfo = document.querySelector('.pagination-info');
+        if (paginationInfo) {
+            paginationInfo.textContent = `מציג ${visibleRows} מתוך ${totalRows} תוצאות`;
+        }
+    }
+    
+    // Add event listeners
+    searchInput.addEventListener('input', filterTable);
+    branchFilter.addEventListener('change', filterTable);
+    statusFilter.addEventListener('change', filterTable);
+    
+    // Export functionality
+    window.exportTable = function() {
+        const table = document.querySelector('table');
+        const rows = Array.from(table.querySelectorAll('tr:not([style*="display: none"])'));
+        
+        let csv = '';
+        rows.forEach(function(row, index) {
+            const cols = row.querySelectorAll('th, td');
+            const rowData = [];
+            
+            cols.forEach(function(col, colIndex) {
+                // Skip checkbox column and actions column
+                if (colIndex === 0 || colIndex === cols.length - 1) return;
+                
+                let cellText = col.textContent.trim();
+                // Clean up the text
+                cellText = cellText.replace(/\s+/g, ' ').replace(/"/g, '""');
+                rowData.push('"' + cellText + '"');
+            });
+            
+            if (rowData.length > 0) {
+                csv += rowData.join(',') + '\n';
+            }
+        });
+        
+        // Create and download CSV
+        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', 'avrechim_list_' + new Date().toISOString().slice(0,10) + '.csv');
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+    
+    // Update count on page load
+    updateVisibleCount();
+});
+</script>
 {% endblock %}

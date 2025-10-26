@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block title %}היסטוריית נוכחות{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <h2>
+            <i class="fas fa-history me-2"></i>היסטוריית נוכחות
+        </h2>
+    </div>
+</div>
+
+<!-- פילטרים -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="GET" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">אברך</label>
+                <select name="avrech_id" class="form-select">
+                    <option value="">כל האברכים</option>
+                    {% for avrech in avrechim %}
+                    <option value="{{ avrech.id }}" {{ 'selected' if avrech.id == selected_avrech }}>
+                        {{ avrech.full_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">חודש</label>
+                <select name="month" class="form-select">
+                    {% for i in range(1, 13) %}
+                    <option value="{{ i }}" {{ 'selected' if i == selected_month }}>
+                        {% if i == 1 %}ינואר{% elif i == 2 %}פברואר{% elif i == 3 %}מרץ{% elif i == 4 %}אפריל{% elif i == 5 %}מאי{% elif i == 6 %}יוני{% elif i == 7 %}יולי{% elif i == 8 %}אוגוסט{% elif i == 9 %}ספטמבר{% elif i == 10 %}אוקטובר{% elif i == 11 %}נובמבר{% elif i == 12 %}דצמבר{% endif %}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">שנה</label>
+                <select name="year" class="form-select">
+                    {% for y in range(2023, 2027) %}
+                    <option value="{{ y }}" {{ 'selected' if y == selected_year }}>{{ y }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">&nbsp;</label>
+                <div>
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-1"></i>סנן
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- רשימת נוכחות -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">רשומות נוכחות</h5>
+    </div>
+    <div class="card-body">
+        {% if logs %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>תאריך</th>
+                        <th>אברך</th>
+                        <th>כניסה</th>
+                        <th>יציאה</th>
+                        <th>סטטוס</th>
+                        <th>איחור</th>
+                        <th>בונוסים</th>
+                        <th>סכום יומי</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.date.strftime('%d/%m/%Y') }}</td>
+                        <td>{{ log.avrech.full_name }}</td>
+                        <td>{{ log.entry_time.strftime('%H:%M') if log.entry_time else '-' }}</td>
+                        <td>{{ log.exit_time.strftime('%H:%M') if log.exit_time else '-' }}</td>
+                        <td>
+                            {% if log.status == 'present' %}
+                                <span class="badge bg-success">נוכח</span>
+                            {% elif log.status == 'late' %}
+                                <span class="badge bg-warning">איחור</span>
+                            {% elif log.status == 'absent' %}
+                                <span class="badge bg-danger">נעדר</span>
+                            {% elif log.status == 'early_exit' %}
+                                <span class="badge bg-info">יציאה מוקדמת</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if log.late_minutes > 0 %}
+                                <span class="text-warning">{{ log.late_minutes }} דק'</span>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if log.taanit_dibur_bonus %}
+                                <span class="badge bg-info">תענית דיבור</span>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td class="fw-bold text-success">
+                            ₪{{ "{:,.0f}".format(log.net_daily_amount) if log.net_daily_amount else "0" }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">לא נמצאו רשומות נוכחות</h5>
+            <p class="text-muted">נסה לשנות את הפילטרים או להוסיף רשומות נוכחות</p>
+            <a href="{{ url_for('attendance.daily') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>רישום נוכחות היום
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

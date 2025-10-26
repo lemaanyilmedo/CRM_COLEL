@@ -1,0 +1,31 @@
+פקודות להעלאה לגיטהאב - לעמן ילמדו
+====================================
+
+1. הוספת כל הקבצים לגיט:
+git add .
+
+2. יצירת commit ראשון:
+git commit -m "First commit: CRM system for Kollel management"
+
+3. הוספת מאגר הגיטהאב כמקור מרוחק:
+git remote add origin https://github.com/lemaanyilmedo/CRM_KOLEL.git
+
+4. בדיקת הקישור למאגר מרוחק:
+git remote -v
+
+5. העלאה לגיטהאב (push):
+git push -u origin main
+
+אם יש שגיאה בשלב 5, נסה:
+git push -u origin master
+
+הערות חשובות:
+- ודא שיצרת מאגר בשם CRM_KOLEL בגיטהאב שלך
+- ודא שהמאגר ריק (בלי README או קבצים אחרים)
+- אם המאגר כבר קיים עם קבצים, תצטרך להוריד אותם קודם:
+  git pull origin main --allow-unrelated-histories
+
+פקודות נוספות שימושיות:
+- בדיקת סטטוס: git status
+- היסטוריית commits: git log --oneline
+- הוספת קובץ ספציפי: git add filename.py

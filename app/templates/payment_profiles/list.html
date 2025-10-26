@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+
+{% block title %}פרופילי תשלום{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>
+        <i class="fas fa-money-bill-wave me-2"></i>פרופילי תשלום
+    </h2>
+    <a href="{{ url_for('payment_profiles.add') }}" class="btn btn-primary">
+        <i class="fas fa-plus me-2"></i>הוסף פרופיל חדש
+    </a>
+</div>
+
+<div class="row">
+    {% for profile in profiles %}
+    <div class="col-lg-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">{{ profile.name }}</h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <strong>שעת כניסה:</strong><br>
+                        <span class="badge bg-info">{{ profile.default_entry_time.strftime('%H:%M') }}</span>
+                    </div>
+                    <div class="col-6">
+                        <strong>שעת יציאה:</strong><br>
+                        <span class="badge bg-info">{{ profile.default_exit_time.strftime('%H:%M') }}</span>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <strong>שיטת תשלום:</strong><br>
+                    {% if profile.payment_method == 'daily_fixed' %}
+                        <span class="badge bg-success">₪{{ profile.daily_amount }} ליום</span>
+                    {% else %}
+                        <span class="badge bg-success">₪{{ profile.monthly_target }} לחודש</span>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <strong>קיזוזים:</strong>
+                    <ul class="list-unstyled ms-2">
+                        <li>
+                            <i class="fas fa-clock text-warning me-1"></i>
+                            איחורים: 
+                            {% if profile.enable_late_penalty %}
+                                <span class="text-danger">₪{{ profile.late_penalty_amount }} לכל {{ profile.late_penalty_interval }} דק'</span>
+                            {% else %}
+                                <span class="text-muted">כבוי</span>
+                            {% endif %}
+                        </li>
+                        <li>
+                            <i class="fas fa-times-circle text-danger me-1"></i>
+                            היעדרויות: 
+                            {% if profile.enable_absence_penalty %}
+                                <span class="text-danger">מופעל</span>
+                            {% else %}
+                                <span class="text-muted">כבוי</span>
+                            {% endif %}
+                        </li>
+                    </ul>
+                </div>
+                
+                {% if profile.bonuses %}
+                <div class="mb-3">
+                    <strong>בונוסים:</strong>
+                    <ul class="list-unstyled ms-2">
+                        {% for bonus in profile.bonuses %}
+                        <li>
+                            <i class="fas fa-star text-warning me-1"></i>
+                            {{ bonus.name }}: <span class="text-success">₪{{ bonus.amount }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-footer">
+                <div class="btn-group w-100">
+                    <a href="{{ url_for('payment_profiles.view', id=profile.id) }}" class="btn btn-outline-primary">
+                        <i class="fas fa-eye me-1"></i>צפייה
+                    </a>
+                    <a href="{{ url_for('payment_profiles.edit', id=profile.id) }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-edit me-1"></i>עריכה
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not profiles %}
+<div class="card">
+    <div class="card-body text-center py-5">
+        <i class="fas fa-money-bill-wave fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">אין פרופילי תשלום במערכת</h5>
+        <p class="text-muted">צור פרופיל תשלום ראשון כדי להתחיל</p>
+        <a href="{{ url_for('payment_profiles.add') }}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>צור פרופיל ראשון
+        </a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

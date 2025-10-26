@@ -17,79 +17,190 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body>
+<body class="{% if current_user.is_authenticated %}sidebar-layout{% endif %}">
     {% if current_user.is_authenticated %}
-    <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{{ url_for('main.index') }}">
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand">
                 <i class="fas fa-synagogue me-2"></i>
-                מערכת CRM כוללים
-            </a>
-            
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+                <span>מערכת CRM כוללים</span>
+            </div>
+            <button class="sidebar-toggle btn btn-link" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
             </button>
+        </div>
+        
+        <div class="sidebar-search">
+            <div class="input-group">
+                <input type="text" class="form-control" placeholder="חיפוש..." id="sidebarSearch">
+                <span class="input-group-text">
+                    <i class="fas fa-search"></i>
+                </span>
+            </div>
+        </div>
+        
+        <ul class="sidebar-nav">
+            <li class="nav-item">
+                <a class="nav-link" href="{{ url_for('main.index') }}">
+                    <i class="fas fa-home"></i>
+                    <span>דשבורד</span>
+                </a>
+            </li>
             
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('main.index') }}">
-                            <i class="fas fa-home me-1"></i>דשבורד
-                        </a>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-users me-1"></i>אברכים
-                        </a>
+            <li class="nav-item has-submenu">
+                <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#avrechMenu">
+                    <i class="fas fa-users"></i>
+                    <span>אברכים</span>
+                    <i class="fas fa-chevron-down submenu-arrow"></i>
+                </a>
+                <div class="collapse submenu" id="avrechMenu">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link submenu-link" href="{{ url_for('avrech.list') }}">
+                                <i class="fas fa-list"></i>רשימת אברכים
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link submenu-link" href="{{ url_for('avrech.add') }}">
+                                <i class="fas fa-plus"></i>הוסף אברך
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            
+            <li class="nav-item has-submenu">
+                <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#attendanceMenu">
+                    <i class="fas fa-calendar-check"></i>
+                    <span>נוכחות</span>
+                    <i class="fas fa-chevron-down submenu-arrow"></i>
+                </a>
+                <div class="collapse submenu" id="attendanceMenu">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link submenu-link" href="{{ url_for('attendance.daily') }}">
+                                <i class="fas fa-clipboard-check"></i>רישום יומי
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link submenu-link" href="{{ url_for('attendance.history') }}">
+                                <i class="fas fa-history"></i>היסטוריית נוכחות
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            
+            <li class="nav-item has-submenu">
+                <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#reportsMenu">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>דוחות</span>
+                    <i class="fas fa-chevron-down submenu-arrow"></i>
+                </a>
+                <div class="collapse submenu" id="reportsMenu">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link submenu-link" href="{{ url_for('reports.monthly') }}">
+                                <i class="fas fa-calendar-alt"></i>דוח חודשי
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link submenu-link" href="{{ url_for('reports.annual') }}">
+                                <i class="fas fa-chart-line"></i>דוח שנתי
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link submenu-link" href="{{ url_for('reports.attendance_summary') }}">
+                                <i class="fas fa-users-cog"></i>סיכום נוכחות
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            
+            {% if current_user.is_admin() %}
+            <li class="nav-item has-submenu">
+                <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#settingsMenu">
+                    <i class="fas fa-cogs"></i>
+                    <span>הגדרות</span>
+                    <i class="fas fa-chevron-down submenu-arrow"></i>
+                </a>
+                <div class="collapse submenu" id="settingsMenu">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link submenu-link" href="{{ url_for('payment_profiles.list') }}">
+                                <i class="fas fa-money-bill-wave"></i>פרופילי תשלום
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link submenu-link" href="{{ url_for('calendar.index') }}">
+                                <i class="fas fa-calendar"></i>לוח שנה
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link submenu-link" href="{{ url_for('admin.users') }}">
+                                <i class="fas fa-users-cog"></i>ניהול משתמשים
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link submenu-link" href="{{ url_for('admin.branches') }}">
+                                <i class="fas fa-building"></i>ניהול סניפים
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link submenu-link" href="{{ url_for('admin.system_settings') }}">
+                                <i class="fas fa-sliders-h"></i>הגדרות מערכת
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </li>
+            {% endif %}
+        </ul>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-details">
+                    <div class="user-name">{{ current_user.full_name }}</div>
+                    <div class="user-role">{{ 'מנהל' if current_user.is_admin() else 'עובד' }}</div>
+                </div>
+                <div class="user-actions">
+                    <div class="dropdown">
+                        <button class="btn btn-link dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('avrech.list') }}">רשימת אברכים</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('avrech.add') }}">הוסף אברך</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-calendar-check me-1"></i>נוכחות
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('attendance.daily') }}">רישום יומי</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('attendance.history') }}">היסטוריית נוכחות</a></li>
-                        </ul>
-                    </li>
-                    {% if current_user.is_admin() %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-cogs me-1"></i>הגדרות
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{{ url_for('payment_profiles.list') }}">פרופילי תשלום</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('calendar.manage') }}">לוח שנה</a></li>
-                            <li><a class="dropdown-item" href="{{ url_for('admin.users') }}">ניהול משתמשים</a></li>
-                        </ul>
-                    </li>
-                    {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ url_for('reports.monthly') }}">
-                            <i class="fas fa-chart-bar me-1"></i>דוחות
-                        </a>
-                    </li>
-                </ul>
-                
-                <ul class="navbar-nav">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                            <i class="fas fa-user me-1"></i>{{ current_user.full_name }}
-                        </a>
-                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
+                                <i class="fas fa-user me-2"></i>פרופיל
+                            </a></li>
+                            <li><hr class="dropdown-divider"></li>
                             <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
-                                <i class="fas fa-sign-out-alt me-1"></i>התנתק
+                                <i class="fas fa-sign-out-alt me-2"></i>התנתק
                             </a></li>
                         </ul>
-                    </li>
-                </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
+    
+    <!-- Top Bar for Mobile -->
+    <div class="topbar d-lg-none">
+        <button class="btn btn-link topbar-toggle" id="mobileToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="topbar-brand">
+            <i class="fas fa-synagogue me-2"></i>
+            מערכת CRM כוללים
+        </div>
+    </div>
+    
+    <!-- Sidebar Overlay for Mobile -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
     {% endif %}
     
     <!-- Flash Messages -->
@@ -107,8 +218,10 @@
     {% endwith %}
     
     <!-- Main Content -->
-    <main class="container-fluid py-4">
-        {% block content %}{% endblock %}
+    <main class="main-content" id="mainContent">
+        <div class="container-fluid py-4">
+            {% block content %}{% endblock %}
+        </div>
     </main>
     
     <!-- Footer -->

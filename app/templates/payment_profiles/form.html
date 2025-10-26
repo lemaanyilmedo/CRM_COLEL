@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}{% if action == 'add' %}הוספת פרופיל תשלום{% else %}עריכת {{ profile.name }}{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">
+                    {% if action == 'add' %}
+                        <i class="fas fa-plus me-2"></i>הוספת פרופיל תשלום חדש
+                    {% else %}
+                        <i class="fas fa-edit me-2"></i>עריכת {{ profile.name }}
+                    {% endif %}
+                </h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" class="needs-validation" novalidate>
+                    <!-- הגדרות בסיס -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="fas fa-cog me-2"></i>הגדרות בסיס
+                            </h5>
+                        </div>
+                        
+                        <div class="col-md-12 mb-3">
+                            <label for="name" class="form-label">שם הפרופיל <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" 
+                                   value="{{ profile.name if profile else '' }}" required>
+                            <div class="invalid-feedback">שדה חובה</div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="default_entry_time" class="form-label">שעת כניסה רגילה <span class="text-danger">*</span></label>
+                            <input type="time" class="form-control" id="default_entry_time" name="default_entry_time" 
+                                   value="{{ profile.default_entry_time.strftime('%H:%M') if profile else '08:00' }}" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="default_exit_time" class="form-label">שעת יציאה רגילה <span class="text-danger">*</span></label>
+                            <input type="time" class="form-control" id="default_exit_time" name="default_exit_time" 
+                                   value="{{ profile.default_exit_time.strftime('%H:%M') if profile else '13:00' }}" required>
+                        </div>
+                    </div>
+                    
+                    <!-- הגדרות תשלום -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="fas fa-money-bill-wave me-2"></i>הגדרות תשלום בסיס
+                            </h5>
+                        </div>
+                        
+                        <div class="col-12 mb-3">
+                            <label class="form-label">שיטת חישוב <span class="text-danger">*</span></label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" id="daily_fixed" value="daily_fixed" 
+                                       {{ 'checked' if not profile or profile.payment_method == 'daily_fixed' }} required>
+                                <label class="form-check-label" for="daily_fixed">
+                                    תשלום יומי קבוע
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="payment_method" id="monthly_target" value="monthly_target" 
+                                       {{ 'checked' if profile and profile.payment_method == 'monthly_target' }} required>
+                                <label class="form-check-label" for="monthly_target">
+                                    תשלום חודשי מבוקש (יעד)
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3" id="daily_amount_field">
+                            <label for="daily_amount" class="form-label">סכום יומי (ש"ח)</label>
+                            <input type="number" class="form-control" id="daily_amount" name="daily_amount" step="0.01" min="0"
+                                   value="{{ profile.daily_amount if profile else '150' }}">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3" id="monthly_target_field" style="display: none;">
+                            <label for="monthly_target" class="form-label">יעד חודשי (ש"ח)</label>
+                            <input type="number" class="form-control" id="monthly_target" name="monthly_target" step="0.01" min="0"
+                                   value="{{ profile.monthly_target if profile else '3000' }}">
+                        </div>
+                    </div>
+                    
+                    <!-- הגדרות קיזוזים -->
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <h5 class="text-primary border-bottom pb-2 mb-3">
+                                <i class="fas fa-minus-circle me-2"></i>הגדרות קיזוזים
+                            </h5>
+                        </div>
+                        
+                        <!-- איחורים -->
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-secondary">איחורים</h6>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="enable_late_penalty" name="enable_late_penalty" value="1"
+                                       {{ 'checked' if profile and profile.enable_late_penalty }}>
+                                <label class="form-check-label" for="enable_late_penalty">
+                                    הפעל קיזוז על איחור
+                                </label>
+                            </div>
+                            <div id="late_penalty_options" class="mt-2" style="{{ 'display: none;' if not (profile and profile.enable_late_penalty) }}">
+                                <div class="mb-2">
+                                    <label for="late_penalty_amount" class="form-label">סכום קיזוז (ש"ח)</label>
+                                    <input type="number" class="form-control" id="late_penalty_amount" name="late_penalty_amount" step="0.01" min="0"
+                                           value="{{ profile.late_penalty_amount if profile else '10' }}">
+                                </div>
+                                <div class="mb-2">
+                                    <label for="late_penalty_interval" class="form-label">אינטרוול (דקות)</label>
+                                    <input type="number" class="form-control" id="late_penalty_interval" name="late_penalty_interval" min="1"
+                                           value="{{ profile.late_penalty_interval if profile else '15' }}">
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="late_penalty_method" id="late_fixed" value="fixed_amount" 
+                                           {{ 'checked' if not profile or profile.late_penalty_method == 'fixed_amount' }}>
+                                    <label class="form-check-label" for="late_fixed">
+                                        קיזוז קבוע
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="late_penalty_method" id="late_per_minute" value="per_minute"
+                                           {{ 'checked' if profile and profile.late_penalty_method == 'per_minute' }}>
+                                    <label class="form-check-label" for="late_per_minute">
+                                        קיזוז לפי דקה
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- היעדרויות -->
+                        <div class="col-md-6 mb-3">
+                            <h6 class="text-secondary">היעדרויות</h6>
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" id="enable_absence_penalty" name="enable_absence_penalty" value="1"
+                                       {{ 'checked' if not profile or profile.enable_absence_penalty }}>
+                                <label class="form-check-label" for="enable_absence_penalty">
+                                    הפעל קיזוז על היעדרות
+                                </label>
+                            </div>
+                            <div id="absence_penalty_options" class="mt-2" style="{{ 'display: none;' if profile and not profile.enable_absence_penalty }}">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="absence_penalty_method" id="absence_full" value="full_day" 
+                                           {{ 'checked' if not profile or profile.absence_penalty_method == 'full_day' }}>
+                                    <label class="form-check-label" for="absence_full">
+                                        קיזוז סכום יומי מלא
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="absence_penalty_method" id="absence_fixed" value="fixed_amount"
+                                           {{ 'checked' if profile and profile.absence_penalty_method == 'fixed_amount' }}>
+                                    <label class="form-check-label" for="absence_fixed">
+                                        קיזוז סכום קבוע
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- כפתורי פעולה -->
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <button type="submit" class="btn btn-primary me-2">
+                                        <i class="fas fa-save me-2"></i>
+                                        {% if action == 'add' %}הוסף פרופיל{% else %}שמור שינויים{% endif %}
+                                    </button>
+                                    <a href="{{ url_for('payment_profiles.list') }}" class="btn btn-outline-secondary">
+                                        <i class="fas fa-times me-2"></i>ביטול
+                                    </a>
+                                </div>
+                                {% if action == 'edit' %}
+                                <div>
+                                    <a href="{{ url_for('payment_profiles.view', id=profile.id) }}" class="btn btn-outline-info">
+                                        <i class="fas fa-eye me-2"></i>צפייה בפרופיל
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Payment method toggle
+document.querySelectorAll('input[name="payment_method"]').forEach(function(radio) {
+    radio.addEventListener('change', function() {
+        if (this.value === 'daily_fixed') {
+            document.getElementById('daily_amount_field').style.display = 'block';
+            document.getElementById('monthly_target_field').style.display = 'none';
+        } else {
+            document.getElementById('daily_amount_field').style.display = 'none';
+            document.getElementById('monthly_target_field').style.display = 'block';
+        }
+    });
+});
+
+// Late penalty toggle
+document.getElementById('enable_late_penalty').addEventListener('change', function() {
+    document.getElementById('late_penalty_options').style.display = this.checked ? 'block' : 'none';
+});
+
+// Absence penalty toggle
+document.getElementById('enable_absence_penalty').addEventListener('change', function() {
+    document.getElementById('absence_penalty_options').style.display = this.checked ? 'block' : 'none';
+});
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    // Trigger payment method change
+    const selectedPaymentMethod = document.querySelector('input[name="payment_method"]:checked');
+    if (selectedPaymentMethod) {
+        selectedPaymentMethod.dispatchEvent(new Event('change'));
+    }
+});
+</script>
+{% endblock %}

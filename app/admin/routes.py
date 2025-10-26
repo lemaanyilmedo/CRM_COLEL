@@ -24,3 +24,13 @@ def branches():
     
     branches = Branch.query.order_by(Branch.name).all()
     return render_template('admin/branches.html', branches=branches)
+
+@bp.route('/system_settings')
+@login_required
+def system_settings():
+    """הגדרות מערכת"""
+    if not current_user.is_admin():
+        flash('אין לך הרשאה לצפות בעמוד זה', 'error')
+        return redirect(url_for('main.index'))
+    
+    return render_template('admin/system_settings.html')

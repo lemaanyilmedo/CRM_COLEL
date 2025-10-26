@@ -21,6 +21,15 @@ document.addEventListener('DOMContentLoaded', function() {
             bsAlert.close();
         });
     }, 5000);
+    
+    // Initialize sidebar functionality
+    initializeSidebar();
+    
+    // Initialize table functionality
+    initializeTables();
+    
+    // Initialize search functionality  
+    initializeSearch();
 
     // Confirm delete actions
     document.addEventListener('click', function(e) {
@@ -234,6 +243,307 @@ document.addEventListener('DOMContentLoaded', function() {
         submitFormAjax: submitFormAjax
     };
 });
+
+// Sidebar functionality
+function initializeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const sidebarToggle = document.getElementById('sidebarToggle');
+    const mobileToggle = document.getElementById('mobileToggle');
+    const sidebarOverlay = document.getElementById('sidebarOverlay');
+    const mainContent = document.getElementById('mainContent');
+    
+    // Desktop sidebar toggle
+    if (sidebarToggle) {
+        sidebarToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            
+            // Save state to localStorage
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        });
+    }
+    
+    // Mobile sidebar toggle
+    if (mobileToggle) {
+        mobileToggle.addEventListener('click', function() {
+            sidebar.classList.add('show');
+            sidebarOverlay.classList.add('show');
+        });
+    }
+    
+    // Close sidebar on overlay click (mobile)
+    if (sidebarOverlay) {
+        sidebarOverlay.addEventListener('click', function() {
+            sidebar.classList.remove('show');
+            sidebarOverlay.classList.remove('show');
+        });
+    }
+    
+    // Restore sidebar state from localStorage
+    const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
+    if (sidebarCollapsed === 'true') {
+        sidebar.classList.add('collapsed');
+    }
+    
+    // Set active nav item based on current URL
+    const currentPath = window.location.pathname;
+    const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+    
+    navLinks.forEach(function(link) {
+        const href = link.getAttribute('href');
+        if (href && currentPath === href) {
+            link.classList.add('active');
+            
+            // Expand parent submenu if needed
+            const submenu = link.closest('.submenu');
+            if (submenu) {
+                submenu.classList.add('show');
+                const toggle = submenu.previousElementSibling;
+                if (toggle) {
+                    toggle.setAttribute('aria-expanded', 'true');
+                }
+            }
+        }
+    });
+}
+
+// Table functionality
+function initializeTables() {
+    // Select all functionality
+    const selectAllCheckboxes = document.querySelectorAll('.select-all-checkbox');
+    selectAllCheckboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            const table = checkbox.closest('.table-container');
+            const rowCheckboxes = table.querySelectorAll('.row-checkbox');
+            const bulkActions = table.querySelector('.bulk-actions');
+            
+            rowCheckboxes.forEach(function(rowCheckbox) {
+                rowCheckbox.checked = checkbox.checked;
+                updateRowSelection(rowCheckbox);
+            });
+            
+            updateBulkActions(table);
+        });
+    });
+    
+    // Individual row selection
+    const rowCheckboxes = document.querySelectorAll('.row-checkbox');
+    rowCheckboxes.forEach(function(checkbox) {
+        checkbox.addEventListener('change', function() {
+            updateRowSelection(checkbox);
+            updateBulkActions(checkbox.closest('.table-container'));
+        });
+    });
+    
+    // Row click to edit (except when clicking on checkbox or action buttons)
+    const tableRows = document.querySelectorAll('.table tbody tr[data-edit-url]');
+    tableRows.forEach(function(row) {
+        row.addEventListener('click', function(e) {
+            // Don't navigate if clicking on checkbox, button, or link
+            if (e.target.type === 'checkbox' || 
+                e.target.closest('.btn') || 
+                e.target.closest('a') ||
+                e.target.closest('.row-checkbox')) {
+                return;
+            }
+            
+            const editUrl = row.getAttribute('data-edit-url');
+            if (editUrl) {
+                window.location.href = editUrl;
+            }
+        });
+    });
+    
+    // Table sorting
+    const sortableHeaders = document.querySelectorAll('.table thead th.sortable');
+    sortableHeaders.forEach(function(header) {
+        header.addEventListener('click', function() {
+            sortTable(header);
+        });
+    });
+    
+    // Bulk action buttons
+    const bulkActionButtons = document.querySelectorAll('.bulk-action-btn');
+    bulkActionButtons.forEach(function(button) {
+        button.addEventListener('click', function() {
+            const action = button.getAttribute('data-action');
+            const table = button.closest('.table-container');
+            const selectedRows = getSelectedRows(table);
+            
+            if (selectedRows.length === 0) {
+                alert('אנא בחר לפחות שורה אחת');
+                return;
+            }
+            
+            handleBulkAction(action, selectedRows);
+        });
+    });
+}
+
+// Update row selection visual state
+function updateRowSelection(checkbox) {
+    const row = checkbox.closest('tr');
+    if (checkbox.checked) {
+        row.classList.add('selected');
+    } else {
+        row.classList.remove('selected');
+    }
+}
+
+// Update bulk actions visibility
+function updateBulkActions(table) {
+    const selectedCount = table.querySelectorAll('.row-checkbox:checked').length;
+    const bulkActions = table.querySelector('.bulk-actions');
+    const bulkActionsText = table.querySelector('.bulk-actions-text');
+    const selectAllCheckbox = table.querySelector('.select-all-checkbox');
+    
+    if (bulkActions) {
+        if (selectedCount > 0) {
+            bulkActions.classList.add('show');
+            if (bulkActionsText) {
+                bulkActionsText.textContent = `נבחרו ${selectedCount} פריטים`;
+            }
+        } else {
+            bulkActions.classList.remove('show');
+        }
+    }
+    
+    // Update select all checkbox state
+    if (selectAllCheckbox) {
+        const totalCheckboxes = table.querySelectorAll('.row-checkbox').length;
+        selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < totalCheckboxes;
+        selectAllCheckbox.checked = selectedCount === totalCheckboxes && totalCheckboxes > 0;
+    }
+}
+
+// Get selected rows data
+function getSelectedRows(table) {
+    const selectedCheckboxes = table.querySelectorAll('.row-checkbox:checked');
+    const selectedRows = [];
+    
+    selectedCheckboxes.forEach(function(checkbox) {
+        const row = checkbox.closest('tr');
+        const id = checkbox.value || row.getAttribute('data-id');
+        if (id) {
+            selectedRows.push({
+                id: id,
+                row: row,
+                checkbox: checkbox
+            });
+        }
+    });
+    
+    return selectedRows;
+}
+
+// Handle bulk actions
+function handleBulkAction(action, selectedRows) {
+    const ids = selectedRows.map(row => row.id);
+    
+    switch (action) {
+        case 'delete':
+            if (confirm(`האם אתה בטוח שברצונך למחוק ${selectedRows.length} פריטים?`)) {
+                // Send delete request
+                fetch(window.location.pathname + '/bulk-delete', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    body: JSON.stringify({ ids: ids })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        selectedRows.forEach(row => row.row.remove());
+                        showNotification('הפריטים נמחקו בהצלחה', 'success');
+                    } else {
+                        showNotification('שגיאה במחיקת הפריטים', 'error');
+                    }
+                })
+                .catch(error => {
+                    showNotification('שגיאה במחיקת הפריטים', 'error');
+                });
+            }
+            break;
+            
+        case 'export':
+            // Export selected rows
+            window.location.href = window.location.pathname + '/export?ids=' + ids.join(',');
+            break;
+            
+        case 'activate':
+        case 'deactivate':
+            // Update status
+            fetch(window.location.pathname + '/bulk-status', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify({ 
+                    ids: ids, 
+                    status: action === 'activate' ? 'active' : 'inactive' 
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    showNotification('שגיאה בעדכון הסטטוס', 'error');
+                }
+            })
+            .catch(error => {
+                showNotification('שגיאה בעדכון הסטטוס', 'error');
+            });
+            break;
+    }
+}
+
+// Table sorting
+function sortTable(header) {
+    const table = header.closest('table');
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr'));
+    const columnIndex = Array.from(header.parentNode.children).indexOf(header);
+    const isAscending = !header.classList.contains('sort-asc');
+    
+    // Remove sort classes from all headers
+    table.querySelectorAll('th').forEach(th => {
+        th.classList.remove('sort-asc', 'sort-desc');
+    });
+    
+    // Add sort class to current header
+    header.classList.add(isAscending ? 'sort-asc' : 'sort-desc');
+    
+    // Sort rows
+    rows.sort((a, b) => {
+        const aValue = a.children[columnIndex].textContent.trim();
+        const bValue = b.children[columnIndex].textContent.trim();
+        
+        // Check if values are numbers
+        const aNum = parseFloat(aValue.replace(/[^\d.-]/g, ''));
+        const bNum = parseFloat(bValue.replace(/[^\d.-]/g, ''));
+        
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+            return isAscending ? aNum - bNum : bNum - aNum;
+        }
+        
+        // String comparison
+        return isAscending ? 
+            aValue.localeCompare(bValue, 'he') : 
+            bValue.localeCompare(aValue, 'he');
+    });
+    
+    // Append sorted rows
+    rows.forEach(row => tbody.appendChild(row));
+}
+
+// Utility functions
+function getCSRFToken() {
+    const tokenMeta = document.querySelector('meta[name="csrf-token"]');
+    return tokenMeta ? tokenMeta.getAttribute('content') : '';
+}
 
 // Keyboard shortcuts
 document.addEventListener('keydown', function(e) {

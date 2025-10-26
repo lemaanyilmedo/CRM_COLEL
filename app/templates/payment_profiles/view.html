@@ -1,0 +1,276 @@
+{% extends "base.html" %}
+
+{% block title %}{{ profile.name }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-user-tag me-2"></i>{{ profile.name }}
+            </h2>
+            <div>
+                <a href="{{ url_for('payment_profiles.edit', id=profile.id) }}" class="btn btn-primary">
+                    <i class="fas fa-edit me-2"></i>עריכה
+                </a>
+                <a href="{{ url_for('payment_profiles.list') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-right me-2"></i>חזרה לרשימה
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- הגדרות בסיס -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-cog me-2"></i>הגדרות בסיס
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-6">
+                        <strong>שעת כניסה רגילה:</strong>
+                        <p>{{ profile.default_entry_time.strftime('%H:%M') }}</p>
+                    </div>
+                    <div class="col-6">
+                        <strong>שעת יציאה רגילה:</strong>
+                        <p>{{ profile.default_exit_time.strftime('%H:%M') }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- הגדרות תשלום -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-money-bill-wave me-2"></i>הגדרות תשלום
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <strong>שיטת חישוב:</strong>
+                    <p>
+                        {% if profile.payment_method == 'daily_fixed' %}
+                            <span class="badge bg-primary">תשלום יומי קבוע</span>
+                        {% else %}
+                            <span class="badge bg-info">יעד חודשי</span>
+                        {% endif %}
+                    </p>
+                </div>
+                
+                {% if profile.payment_method == 'daily_fixed' %}
+                <div>
+                    <strong>סכום יומי:</strong>
+                    <p class="text-success fs-5">₪{{ "%.2f"|format(profile.daily_amount) }}</p>
+                </div>
+                {% else %}
+                <div>
+                    <strong>יעד חודשי:</strong>
+                    <p class="text-success fs-5">₪{{ "%.2f"|format(profile.monthly_target) }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- הגדרות איחורים -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-clock me-2"></i>הגדרות איחורים
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if profile.enable_late_penalty %}
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        קיזוזים על איחורים מופעלים
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-6">
+                            <strong>סכום קיזוז:</strong>
+                            <p class="text-danger">₪{{ "%.2f"|format(profile.late_penalty_amount) }}</p>
+                        </div>
+                        <div class="col-6">
+                            <strong>אינטרוול:</strong>
+                            <p>{{ profile.late_penalty_interval }} דקות</p>
+                        </div>
+                        <div class="col-12">
+                            <strong>שיטת חישוב:</strong>
+                            <p>
+                                {% if profile.late_penalty_method == 'fixed_amount' %}
+                                    <span class="badge bg-warning">קיזוז קבוע</span>
+                                {% else %}
+                                    <span class="badge bg-warning">קיזוז לפי דקה</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-success" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        אין קיזוזים על איחורים
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- הגדרות היעדרויות -->
+    <div class="col-lg-6 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-user-times me-2"></i>הגדרות היעדרויות
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if profile.enable_absence_penalty %}
+                    <div class="alert alert-warning" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        קיזוזים על היעדרויות מופעלים
+                    </div>
+                    
+                    <div>
+                        <strong>שיטת קיזוז:</strong>
+                        <p>
+                            {% if profile.absence_penalty_method == 'full_day' %}
+                                <span class="badge bg-danger">קיזוז סכום יומי מלא</span>
+                            {% else %}
+                                <span class="badge bg-warning">קיזוז סכום קבוע</span>
+                            {% endif %}
+                        </p>
+                    </div>
+                {% else %}
+                    <div class="alert alert-success" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>
+                        אין קיזוזים על היעדרויות
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- אברכים בפרופיל -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-users me-2"></i>אברכים בפרופיל ({{ avrechim|length }})
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if avrechim %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>שם</th>
+                                    <th>כניסת</th>
+                                    <th>יציאת</th>
+                                    <th>מצב</th>
+                                    <th>פעולות</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for avrech in avrechim %}
+                                <tr>
+                                    <td>
+                                        <a href="{{ url_for('avrech.view', id=avrech.id) }}" class="text-decoration-none">
+                                            {{ avrech.first_name }} {{ avrech.last_name }}
+                                        </a>
+                                    </td>
+                                    <td>{{ profile.default_entry_time.strftime('%H:%M') }}</td>
+                                    <td>{{ profile.default_exit_time.strftime('%H:%M') }}</td>
+                                    <td>
+                                        {% if avrech.status == 'active' %}
+                                            <span class="badge bg-success">פעיל</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">לא פעיל</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('avrech.view', id=avrech.id) }}" class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ url_for('avrech.edit', id=avrech.id) }}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted py-4">
+                        <i class="fas fa-users fa-3x mb-3"></i>
+                        <p>אין אברכים המשויכים לפרופיל זה</p>
+                        <a href="{{ url_for('avrech.add') }}" class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>הוסף אברך חדש
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- סטטיסטיקות -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>סטטיסטיקות חודש נוכחי
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if avrechim %}
+                    <div class="row text-center">
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h3 class="text-primary">{{ avrechim|length }}</h3>
+                                <p class="text-muted mb-0">סה"כ אברכים</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h3 class="text-success">{{ avrechim|selectattr('status', 'equalto', 'active')|list|length }}</h3>
+                                <p class="text-muted mb-0">אברכים פעילים</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="border-end">
+                                <h3 class="text-info">₪{{ "%.0f"|format(profile.daily_amount * avrechim|selectattr('status', 'equalto', 'active')|list|length * 22) if profile.payment_method == 'daily_fixed' else "%.0f"|format(profile.monthly_target * avrechim|selectattr('status', 'equalto', 'active')|list|length) }}</h3>
+                                <p class="text-muted mb-0">תקציב חודשי משוער</p>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <h3 class="text-warning">₪{{ "%.0f"|format(profile.daily_amount * avrechim|selectattr('status', 'equalto', 'active')|list|length) if profile.payment_method == 'daily_fixed' else "%.0f"|format(profile.monthly_target * avrechim|selectattr('status', 'equalto', 'active')|list|length / 22) }}</h3>
+                            <p class="text-muted mb-0">תקציב יומי משוער</p>
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="text-center text-muted">
+                        <p>אין נתונים להצגה</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

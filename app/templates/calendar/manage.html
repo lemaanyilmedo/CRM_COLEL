@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}ניהול לוח שנה{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-calendar-cog me-2"></i>ניהול לוח שנה מערכתי
+            </h2>
+            <div>
+                <a href="{{ url_for('calendar.index') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-calendar me-2"></i>צפייה בלוח שנה
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-plus me-2"></i>הוספת אירוע חדש
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('calendar.add_event') }}">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="title" class="form-label">כותרת האירוע <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="title" name="title" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="date" class="form-label">תאריך <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" id="date" name="date" required>
+                        </div>
+                        <div class="col-md-3 mb-3">
+                            <label for="time" class="form-label">שעה</label>
+                            <input type="time" class="form-control" id="time" name="time">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="type" class="form-label">סוג אירוע</label>
+                            <select class="form-select" id="type" name="type">
+                                <option value="event">אירוע כללי</option>
+                                <option value="study">לימודים/שיעור</option>
+                                <option value="holiday">חג/מועד</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="description" class="form-label">תיאור</label>
+                            <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-plus me-2"></i>הוסף אירוע
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>הנחיות
+                </h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        ניתן להוסיף אירועים חשובים לכל המערכת
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        אירועי חגים ומועדים יוצגו לכל המשתמשים
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        ניתן לתזמן שיעורים ואירועי לימוד
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-check text-success me-2"></i>
+                        האירועים יופיעו בלוח השנה הראשי
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="card mt-3">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-palette me-2"></i>סוגי אירועים
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-2">
+                    <span class="badge bg-danger me-2">●</span>
+                    <strong>חגים ומועדים</strong> - אירועים דתיים חשובים
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-success me-2">●</span>
+                    <strong>לימודים/שיעורים</strong> - פעילויות לימוד ושיעורים
+                </div>
+                <div class="mb-2">
+                    <span class="badge bg-warning me-2">●</span>
+                    <strong>אירועים כלליים</strong> - אירועים ופעילויות כלליות
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>אירועים קיימים
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-calendar-plus fa-3x mb-3"></i>
+                    <h5>אין אירועים למערכת עדיין</h5>
+                    <p>התחל בהוספת אירועים חשובים למערכת</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
