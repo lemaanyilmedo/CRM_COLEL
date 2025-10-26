@@ -1,8 +1,10 @@
-from datetime import datetime
+from datetime import datetime, date, time
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
-from app import db
+
+# Create db instance
+db = SQLAlchemy()
 
 class User(UserMixin, db.Model):
     """משתמש מערכת"""

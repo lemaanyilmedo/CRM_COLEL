@@ -11,8 +11,8 @@ from datetime import time
 # הוספת התיקייה הנוכחית לpath
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from app import create_app, db
-from app.models import User, Branch, PaymentProfile, BonusRule
+from app import create_app
+from app.models import db, User, Branch, PaymentProfile, BonusRule
 
 def init_database():
     """אתחול בסיס הנתונים עם נתונים בסיסיים"""

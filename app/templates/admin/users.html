@@ -26,72 +26,73 @@
     </div>
     <div class="card-body">
         {% if users %}
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>שם מלא</th>
-                            <th>שם משתמש</th>
-                            <th>תפקיד</th>
-                            <th>סטטוס</th>
-                            <th>תאריך רישום</th>
-                            <th>פעולות</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in users %}
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
-                                         style="width: 40px; height: 40px;">
-                                        <span class="fw-bold">{{ user.full_name[0] if user.full_name else user.username[0] }}</span>
-                                    </div>
-                                    <div>
-                                        <div class="fw-bold">{{ user.full_name or user.username }}</div>
-                                        <div class="text-muted small">{{ user.username }}</div>
-                                    </div>
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>שם מלא</th>
+                        <th>שם משתמש</th>
+                        <th>תפקיד</th>
+                        <th>סטטוס</th>
+                        <th>תאריך רישום</th>
+                        <th>פעולות</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                    style="width: 40px; height: 40px;">
+                                    <span class="fw-bold">{{ user.full_name[0] if user.full_name else user.username[0]
+                                        }}</span>
                                 </div>
-                            </td>
-                            <td>
-                                <code>{{ user.username }}</code>
-                            </td>
-                            <td>
-                                {% if user.is_admin %}
-                                    <span class="badge bg-danger">מנהל</span>
-                                {% else %}
-                                    <span class="badge bg-info">עובד</span>
+                                <div>
+                                    <div class="fw-bold">{{ user.full_name or user.username }}</div>
+                                    <div class="text-muted small">{{ user.username }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <code>{{ user.username }}</code>
+                        </td>
+                        <td>
+                            {% if user.is_admin %}
+                            <span class="badge bg-danger">מנהל</span>
+                            {% else %}
+                            <span class="badge bg-info">עובד</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-success">פעיל</span>
+                        </td>
+                        <td>
+                            {{ user.created_at.strftime('%d/%m/%Y') if user.created_at else '-' }}
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-outline-primary" title="עריכה">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                {% if not user.is_admin %}
+                                <button type="button" class="btn btn-outline-danger" title="מחיקה">
+                                    <i class="fas fa-trash"></i>
+                                </button>
                                 {% endif %}
-                            </td>
-                            <td>
-                                <span class="badge bg-success">פעיל</span>
-                            </td>
-                            <td>
-                                {{ user.created_at.strftime('%d/%m/%Y') if user.created_at else '-' }}
-                            </td>
-                            <td>
-                                <div class="btn-group btn-group-sm">
-                                    <button type="button" class="btn btn-outline-primary" title="עריכה">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                    {% if not user.is_admin %}
-                                    <button type="button" class="btn btn-outline-danger" title="מחיקה">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                    {% endif %}
-                                </div>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
         {% else %}
-            <div class="text-center text-muted py-4">
-                <i class="fas fa-users fa-3x mb-3"></i>
-                <h5>אין משתמשים במערכת</h5>
-                <p>התחל בהוספת המשתמש הראשון</p>
-            </div>
+        <div class="text-center text-muted py-4">
+            <i class="fas fa-users fa-3x mb-3"></i>
+            <h5>אין משתמשים במערכת</h5>
+            <p>התחל בהוספת המשתמש הראשון</p>
+        </div>
         {% endif %}
     </div>
 </div>

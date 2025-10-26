@@ -11,9 +11,20 @@ import io
 @login_required
 def monthly():
     """דוח תשלומים חודשי"""
+    from app.models import Branch
+    
     month = request.args.get('month', type=int, default=date.today().month)
     year = request.args.get('year', type=int, default=date.today().year)
     branch_id = request.args.get('branch_id', type=int)
+    
+    # שמות חודשים בעברית
+    month_names = [
+        'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
+        'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
+    ]
+    
+    # שליפת כל הסניפים לבורר
+    branches = Branch.query.filter_by(is_active=True).order_by(Branch.name).all()
     
     # בניית שאילתה
     query = Avrech.query.filter_by(is_active=True)
@@ -24,12 +35,20 @@ def monthly():
     
     # חישוב נתונים לכל אברך
     report_data = []
+    total_payments = 0
+    total_penalties = 0
+    total_attendance_days = 0
+    
     for avrech in avrechim:
         monthly_summary = avrech.get_monthly_attendance_summary(year, month)
         total_amount = sum([log.net_daily_amount or 0 for log in monthly_summary['logs']])
         base_amount = sum([log.daily_base_amount or 0 for log in monthly_summary['logs']])
         penalties = sum([log.penalties_amount or 0 for log in monthly_summary['logs']])
         bonuses = sum([log.bonuses_amount or 0 for log in monthly_summary['logs']])
+        
+        total_payments += total_amount
+        total_penalties += penalties
+        total_attendance_days += monthly_summary['present_days']
         
         report_data.append({
             'avrech': avrech,
@@ -42,11 +61,22 @@ def monthly():
             'total_amount': total_amount
         })
     
+    # סיכום כללי
+    summary = {
+        'total_avrechim': len(avrechim),
+        'total_attendance_days': total_attendance_days,
+        'total_payments': total_payments,
+        'total_penalties': total_penalties
+    }
+    
     return render_template('reports/monthly.html',
                          report_data=report_data,
                          selected_month=month,
                          selected_year=year,
-                         selected_branch=branch_id)
+                         selected_branch=branch_id,
+                         month_names=month_names,
+                         branches=branches,
+                         summary=summary)
 
 @bp.route('/annual')
 @login_required
@@ -54,6 +84,12 @@ def annual():
     """דוח שנתי"""
     year = request.args.get('year', type=int, default=date.today().year)
     branch_id = request.args.get('branch_id', type=int)
+    
+    # שמות חודשים בעברית
+    month_names = [
+        'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
+        'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
+    ]
     
     query = Avrech.query.filter_by(is_active=True)
     if branch_id:
@@ -87,7 +123,8 @@ def annual():
     return render_template('reports/annual.html',
                          annual_data=annual_data,
                          selected_year=year,
-                         selected_branch=branch_id)
+                         selected_branch=branch_id,
+                         month_names=month_names)
 
 @bp.route('/attendance_summary')
 @login_required

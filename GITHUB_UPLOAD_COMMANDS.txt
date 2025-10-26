@@ -1,5 +1,16 @@
-# פקודות מלאות להעלאת מערכת CRM כולל ל-GitHub
+# =============================================
+# 🚀 פקודות מלאות להעלאת מערכת CRM כולל ל-GitHub
+# =============================================
 # יש להריץ את הפקודות בסדר בטרמינל PowerShell
+
+# ⚠️ חשוב: לפני הרצת הפקודות - יש ליצור Repository ב-GitHub:
+# 1. עבור ל-GitHub.com והתחבר לחשבון
+# 2. לחץ על "New Repository" (כפתור ירוק)
+# 3. שם Repository: CRM_KOLEL
+# 4. תיאור: מערכת ניהול כולל למען ילמדו
+# 5. בחר Public או Private
+# 6. ⚠️ אל תסמן "Add a README file" - כבר יש לנו קבצים!
+# 7. לחץ "Create repository"
 
 # ===============================================
 # שלב 1: הכנת הקוד להעלאה

@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-from app import create_app, db
-from app.models import User, Avrech, Branch, PaymentProfile, AttendanceLog, SystemCalendar, BonusRule
+from app import create_app
+from app.models import db, User, Avrech, Branch, PaymentProfile, AttendanceLog, SystemCalendar, BonusRule
 
 app = create_app()
 

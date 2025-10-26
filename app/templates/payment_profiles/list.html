@@ -30,40 +30,41 @@
                         <span class="badge bg-info">{{ profile.default_exit_time.strftime('%H:%M') }}</span>
                     </div>
                 </div>
-                
+
                 <div class="mb-3">
                     <strong>שיטת תשלום:</strong><br>
                     {% if profile.payment_method == 'daily_fixed' %}
-                        <span class="badge bg-success">₪{{ profile.daily_amount }} ליום</span>
+                    <span class="badge bg-success">₪{{ profile.daily_amount }} ליום</span>
                     {% else %}
-                        <span class="badge bg-success">₪{{ profile.monthly_target }} לחודש</span>
+                    <span class="badge bg-success">₪{{ profile.monthly_target }} לחודש</span>
                     {% endif %}
                 </div>
-                
+
                 <div class="mb-3">
                     <strong>קיזוזים:</strong>
                     <ul class="list-unstyled ms-2">
                         <li>
                             <i class="fas fa-clock text-warning me-1"></i>
-                            איחורים: 
+                            איחורים:
                             {% if profile.enable_late_penalty %}
-                                <span class="text-danger">₪{{ profile.late_penalty_amount }} לכל {{ profile.late_penalty_interval }} דק'</span>
+                            <span class="text-danger">₪{{ profile.late_penalty_amount }} לכל {{
+                                profile.late_penalty_interval }} דק'</span>
                             {% else %}
-                                <span class="text-muted">כבוי</span>
+                            <span class="text-muted">כבוי</span>
                             {% endif %}
                         </li>
                         <li>
                             <i class="fas fa-times-circle text-danger me-1"></i>
-                            היעדרויות: 
+                            היעדרויות:
                             {% if profile.enable_absence_penalty %}
-                                <span class="text-danger">מופעל</span>
+                            <span class="text-danger">מופעל</span>
                             {% else %}
-                                <span class="text-muted">כבוי</span>
+                            <span class="text-muted">כבוי</span>
                             {% endif %}
                         </li>
                     </ul>
                 </div>
-                
+
                 {% if profile.bonuses %}
                 <div class="mb-3">
                     <strong>בונוסים:</strong>

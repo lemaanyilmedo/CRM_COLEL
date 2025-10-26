@@ -1,22 +1,24 @@
 <!DOCTYPE html>
 <html lang="he" dir="rtl">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}מערכת CRM כוללים{% endblock %}</title>
-    
+
     <!-- Bootstrap RTL CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css" rel="stylesheet">
-    
+
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
+
     <!-- Custom CSS -->
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
-    
+
     {% block extra_css %}{% endblock %}
 </head>
+
 <body class="{% if current_user.is_authenticated %}sidebar-layout{% endif %}">
     {% if current_user.is_authenticated %}
     <!-- Sidebar Navigation -->
@@ -30,7 +32,7 @@
                 <i class="fas fa-bars"></i>
             </button>
         </div>
-        
+
         <div class="sidebar-search">
             <div class="input-group">
                 <input type="text" class="form-control" placeholder="חיפוש..." id="sidebarSearch">
@@ -39,7 +41,7 @@
                 </span>
             </div>
         </div>
-        
+
         <ul class="sidebar-nav">
             <li class="nav-item">
                 <a class="nav-link" href="{{ url_for('main.index') }}">
@@ -47,7 +49,7 @@
                     <span>דשבורד</span>
                 </a>
             </li>
-            
+
             <li class="nav-item has-submenu">
                 <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#avrechMenu">
                     <i class="fas fa-users"></i>
@@ -69,7 +71,7 @@
                     </ul>
                 </div>
             </li>
-            
+
             <li class="nav-item has-submenu">
                 <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#attendanceMenu">
                     <i class="fas fa-calendar-check"></i>
@@ -91,7 +93,7 @@
                     </ul>
                 </div>
             </li>
-            
+
             <li class="nav-item has-submenu">
                 <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#reportsMenu">
                     <i class="fas fa-chart-bar"></i>
@@ -118,7 +120,7 @@
                     </ul>
                 </div>
             </li>
-            
+
             {% if current_user.is_admin() %}
             <li class="nav-item has-submenu">
                 <a class="nav-link" href="#" data-bs-toggle="collapse" data-bs-target="#settingsMenu">
@@ -158,7 +160,7 @@
             </li>
             {% endif %}
         </ul>
-        
+
         <div class="sidebar-footer">
             <div class="user-info">
                 <div class="user-avatar">
@@ -175,19 +177,21 @@
                         </button>
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="{{ url_for('auth.profile') }}">
-                                <i class="fas fa-user me-2"></i>פרופיל
-                            </a></li>
-                            <li><hr class="dropdown-divider"></li>
+                                    <i class="fas fa-user me-2"></i>פרופיל
+                                </a></li>
+                            <li>
+                                <hr class="dropdown-divider">
+                            </li>
                             <li><a class="dropdown-item" href="{{ url_for('auth.logout') }}">
-                                <i class="fas fa-sign-out-alt me-2"></i>התנתק
-                            </a></li>
+                                    <i class="fas fa-sign-out-alt me-2"></i>התנתק
+                                </a></li>
                         </ul>
                     </div>
                 </div>
             </div>
         </div>
     </nav>
-    
+
     <!-- Top Bar for Mobile -->
     <div class="topbar d-lg-none">
         <button class="btn btn-link topbar-toggle" id="mobileToggle">
@@ -198,32 +202,33 @@
             מערכת CRM כוללים
         </div>
     </div>
-    
+
     <!-- Sidebar Overlay for Mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     {% endif %}
-    
+
     <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            <div class="container-fluid mt-3">
-                {% for category, message in messages %}
-                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
-                        {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                    </div>
-                {% endfor %}
-            </div>
-        {% endif %}
+    {% if messages %}
+    <div class="container-fluid mt-3">
+        {% for category, message in messages %}
+        <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show"
+            role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
     {% endwith %}
-    
+
     <!-- Main Content -->
     <main class="main-content" id="mainContent">
         <div class="container-fluid py-4">
             {% block content %}{% endblock %}
         </div>
     </main>
-    
+
     <!-- Footer -->
     <footer class="bg-light text-center py-3 mt-5">
         <div class="container">
@@ -232,13 +237,14 @@
             </p>
         </div>
     </footer>
-    
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Custom JS -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    
+
     {% block extra_js %}{% endblock %}
 </body>
+
 </html>

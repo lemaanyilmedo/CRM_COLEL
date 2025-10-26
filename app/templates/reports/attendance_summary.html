@@ -1,0 +1,178 @@
+{% extends "base.html" %}
+
+{% block title %}סיכום נוכחות{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-chart-bar me-2"></i>סיכום נוכחות
+            </h2>
+            <div>
+                <button type="button" class="btn btn-info" id="printBtn">
+                    <i class="fas fa-print me-2"></i>הדפס
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- בורר חודש -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <form method="GET" class="row align-items-end">
+                    <div class="col-md-3">
+                        <label for="month" class="form-label">חודש</label>
+                        <select class="form-select" id="month" name="month">
+                            {% for i in range(1, 13) %}
+                            <option value="{{ i }}" {{ 'selected' if i==selected_month }}>
+                                {{ ['ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני', 'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'][i-1] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="year" class="form-label">שנה</label>
+                        <select class="form-select" id="year" name="year">
+                            {% for year in range(2023, 2030) %}
+                            <option value="{{ year }}" {{ 'selected' if year==selected_year }}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>הצג דוח
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- טבלת סיכום -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="fas fa-table me-2"></i>סיכום נוכחות לחודש {{ selected_month }}/{{ selected_year }}
+        </h5>
+    </div>
+    <div class="card-body">
+        {% if summary_data %}
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>אברך</th>
+                        <th class="text-center">ימי נוכחות</th>
+                        <th class="text-center">ימי היעדרות</th>
+                        <th class="text-center">מספר איחורים</th>
+                        <th class="text-center">סה"כ דקות איחור</th>
+                        <th class="text-center">אחוז נוכחות</th>
+                        <th class="text-center">סטטוס</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for data in summary_data %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3"
+                                    style="width: 40px; height: 40px;">
+                                    <span>{{ data.avrech.first_name[0] }}{{ data.avrech.last_name[0] }}</span>
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ data.avrech.full_name }}</div>
+                                    <div class="text-muted small">{{ data.avrech.id_number }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-success fs-6">{{ data.present_days }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-danger fs-6">{{ data.absent_days }}</span>
+                        </td>
+                        <td class="text-center">
+                            <span class="badge bg-warning fs-6">{{ data.late_count }}</span>
+                        </td>
+                        <td class="text-center">{{ data.total_late_minutes }}</td>
+                        <td class="text-center">
+                            <div class="progress" style="height: 25px;">
+                                <div class="progress-bar {% if data.attendance_percentage >= 90 %}bg-success{% elif data.attendance_percentage >= 75 %}bg-warning{% else %}bg-danger{% endif %}"
+                                    role="progressbar" style="width: {{ data.attendance_percentage }}%">
+                                    {{ "%.1f"|format(data.attendance_percentage) }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td class="text-center">
+                            {% if data.attendance_percentage >= 90 %}
+                            <span class="badge bg-success">מצוין</span>
+                            {% elif data.attendance_percentage >= 75 %}
+                            <span class="badge bg-warning">טוב</span>
+                            {% else %}
+                            <span class="badge bg-danger">דורש שיפור</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- סטטיסטיקות כלליות -->
+        <div class="row mt-4">
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ summary_data|map(attribute='present_days')|sum }}</h4>
+                        <p class="mb-0">סה"כ ימי נוכחות</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-danger text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ summary_data|map(attribute='absent_days')|sum }}</h4>
+                        <p class="mb-0">סה"כ ימי היעדרות</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ summary_data|map(attribute='late_count')|sum }}</h4>
+                        <p class="mb-0">סה"כ איחורים</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h4>{{ summary_data|length }}</h4>
+                        <p class="mb-0">סה"כ אברכים</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="text-center text-muted py-5">
+            <i class="fas fa-chart-bar fa-3x mb-3"></i>
+            <h5>אין נתוני נוכחות לחודש זה</h5>
+            <p>נא לבחור חודש אחר או להוסיף נתוני נוכחות</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('printBtn').addEventListener('click', function() {
+        window.print();
+    });
+</script>
+{% endblock %}

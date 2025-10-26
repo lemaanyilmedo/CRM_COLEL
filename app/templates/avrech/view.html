@@ -17,7 +17,7 @@
                     <strong>תעודת זהות:</strong><br>
                     <code>{{ avrech.id_number }}</code>
                 </div>
-                
+
                 {% if avrech.phone %}
                 <div class="mb-3">
                     <strong>טלפון:</strong><br>
@@ -26,7 +26,7 @@
                     </a>
                 </div>
                 {% endif %}
-                
+
                 {% if avrech.email %}
                 <div class="mb-3">
                     <strong>דואר אלקטרוני:</strong><br>
@@ -35,32 +35,32 @@
                     </a>
                 </div>
                 {% endif %}
-                
+
                 <div class="mb-3">
                     <strong>סניף:</strong><br>
                     {% if avrech.branch %}
-                        <span class="badge bg-secondary">{{ avrech.branch.name }}</span>
+                    <span class="badge bg-secondary">{{ avrech.branch.name }}</span>
                     {% else %}
-                        <span class="text-muted">ללא סניף</span>
+                    <span class="text-muted">ללא סניף</span>
                     {% endif %}
                 </div>
-                
+
                 <div class="mb-3">
                     <strong>פרופיל תשלום:</strong><br>
                     <span class="badge bg-info">{{ avrech.payment_profile.name }}</span>
                 </div>
-                
+
                 <div class="mb-3">
                     <strong>תאריך התחלה:</strong><br>
                     {{ avrech.start_date.strftime('%d/%m/%Y') if avrech.start_date else 'לא צוין' }}
                 </div>
-                
+
                 <div class="mb-0">
                     <strong>סטטוס:</strong><br>
                     {% if avrech.is_active %}
-                        <span class="badge bg-success">פעיל</span>
+                    <span class="badge bg-success">פעיל</span>
                     {% else %}
-                        <span class="badge bg-danger">לא פעיל</span>
+                    <span class="badge bg-danger">לא פעיל</span>
                     {% endif %}
                 </div>
             </div>
@@ -76,7 +76,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- סטטיסטיקות נוכחות -->
     <div class="col-lg-8">
         <div class="card mb-4">
@@ -115,7 +115,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- פרטי פרופיל התשלום -->
         <div class="card mb-4">
             <div class="card-header">
@@ -128,13 +128,15 @@
                     <div class="col-md-6">
                         <h6 class="text-primary">הגדרות בסיס</h6>
                         <ul class="list-unstyled">
-                            <li><strong>שעת כניסה:</strong> {{ avrech.payment_profile.default_entry_time.strftime('%H:%M') }}</li>
-                            <li><strong>שעת יציאה:</strong> {{ avrech.payment_profile.default_exit_time.strftime('%H:%M') }}</li>
-                            <li><strong>שיטת תשלום:</strong> 
+                            <li><strong>שעת כניסה:</strong> {{
+                                avrech.payment_profile.default_entry_time.strftime('%H:%M') }}</li>
+                            <li><strong>שעת יציאה:</strong> {{
+                                avrech.payment_profile.default_exit_time.strftime('%H:%M') }}</li>
+                            <li><strong>שיטת תשלום:</strong>
                                 {% if avrech.payment_profile.payment_method == 'daily_fixed' %}
-                                    תשלום יומי קבוע (₪{{ avrech.payment_profile.daily_amount }})
+                                תשלום יומי קבוע (₪{{ avrech.payment_profile.daily_amount }})
                                 {% else %}
-                                    יעד חודשי (₪{{ avrech.payment_profile.monthly_target }})
+                                יעד חודשי (₪{{ avrech.payment_profile.monthly_target }})
                                 {% endif %}
                             </li>
                         </ul>
@@ -143,20 +145,21 @@
                         <h6 class="text-primary">חוקי קיזוז</h6>
                         <ul class="list-unstyled">
                             <li>
-                                <strong>איחורים:</strong> 
+                                <strong>איחורים:</strong>
                                 {% if avrech.payment_profile.enable_late_penalty %}
-                                    <span class="text-danger">מופעל</span>
-                                    (₪{{ avrech.payment_profile.late_penalty_amount }} לכל {{ avrech.payment_profile.late_penalty_interval }} דקות)
+                                <span class="text-danger">מופעל</span>
+                                (₪{{ avrech.payment_profile.late_penalty_amount }} לכל {{
+                                avrech.payment_profile.late_penalty_interval }} דקות)
                                 {% else %}
-                                    <span class="text-muted">כבוי</span>
+                                <span class="text-muted">כבוי</span>
                                 {% endif %}
                             </li>
                             <li>
-                                <strong>היעדרויות:</strong> 
+                                <strong>היעדרויות:</strong>
                                 {% if avrech.payment_profile.enable_absence_penalty %}
-                                    <span class="text-danger">מופעל</span>
+                                <span class="text-danger">מופעל</span>
                                 {% else %}
-                                    <span class="text-muted">כבוי</span>
+                                <span class="text-muted">כבוי</span>
                                 {% endif %}
                             </li>
                         </ul>
@@ -164,7 +167,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- פעולות מהירות -->
         <div class="card">
             <div class="card-header">

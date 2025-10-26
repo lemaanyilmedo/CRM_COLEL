@@ -18,15 +18,15 @@
         <form method="GET" class="row g-3">
             <div class="col-md-4">
                 <label class="form-label">חיפוש</label>
-                <input type="text" class="form-control" name="search" value="{{ search }}" 
-                       placeholder="שם, תעודת זהות...">
+                <input type="text" class="form-control" name="search" value="{{ search }}"
+                    placeholder="שם, תעודת זהות...">
             </div>
             <div class="col-md-3">
                 <label class="form-label">סניף</label>
                 <select name="branch_id" class="form-select">
                     <option value="">כל הסניפים</option>
                     {% for branch in branches %}
-                    <option value="{{ branch.id }}" {{ 'selected' if branch.id == selected_branch }}>
+                    <option value="{{ branch.id }}" {{ 'selected' if branch.id==selected_branch }}>
                         {{ branch.name }}
                     </option>
                     {% endfor %}
@@ -57,7 +57,7 @@
             </a>
         </div>
     </div>
-    
+
     <div class="table-filters">
         <div class="table-search">
             <div class="input-group">
@@ -85,7 +85,7 @@
             </select>
         </div>
     </div>
-    
+
     <div class="bulk-actions">
         <div class="d-flex align-items-center">
             <button type="button" class="btn btn-sm btn-danger bulk-action-btn" data-action="delete">
@@ -103,7 +103,7 @@
         </div>
         <div class="bulk-actions-text"></div>
     </div>
-    
+
     {% if avrechim %}
     <table class="table">
         <thead>
@@ -129,14 +129,15 @@
                 <td>
                     <div class="d-flex align-items-center">
                         <div class="me-3">
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 40px; height: 40px;">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                                style="width: 40px; height: 40px;">
                                 <span class="fw-bold">{{ avrech.first_name[0] }}{{ avrech.last_name[0] }}</span>
                             </div>
                         </div>
                         <div>
                             <div class="fw-bold">{{ avrech.full_name }}</div>
-                            <div class="text-muted small">נוסף: {{ avrech.created_at.strftime('%d/%m/%Y') if avrech.created_at else 'לא ידוע' }}</div>
+                            <div class="text-muted small">נוסף: {{ avrech.created_at.strftime('%d/%m/%Y') if
+                                avrech.created_at else 'לא ידוע' }}</div>
                         </div>
                     </div>
                 </td>
@@ -145,42 +146,43 @@
                 </td>
                 <td>
                     {% if avrech.branch %}
-                        <span class="badge bg-secondary">{{ avrech.branch.name }}</span>
+                    <span class="badge bg-secondary">{{ avrech.branch.name }}</span>
                     {% else %}
-                        <span class="text-muted">ללא סניף</span>
+                    <span class="text-muted">ללא סניף</span>
                     {% endif %}
                 </td>
                 <td>
-                    <span class="badge bg-info">{{ avrech.payment_profile.name if avrech.payment_profile else 'לא מוגדר' }}</span>
+                    <span class="badge bg-info">{{ avrech.payment_profile.name if avrech.payment_profile else 'לא מוגדר'
+                        }}</span>
                 </td>
                 <td>
                     {% if avrech.phone %}
-                        <a href="tel:{{ avrech.phone }}" class="text-decoration-none">
-                            <i class="fas fa-phone me-1"></i>{{ avrech.phone }}
-                        </a>
+                    <a href="tel:{{ avrech.phone }}" class="text-decoration-none">
+                        <i class="fas fa-phone me-1"></i>{{ avrech.phone }}
+                    </a>
                     {% else %}
-                        <span class="text-muted">-</span>
+                    <span class="text-muted">-</span>
                     {% endif %}
                 </td>
                 <td>
                     {% if avrech.status == 'active' %}
-                        <span class="status-badge status-active">פעיל</span>
+                    <span class="status-badge status-active">פעיל</span>
                     {% else %}
-                        <span class="status-badge status-inactive">לא פעיל</span>
+                    <span class="status-badge status-inactive">לא פעיל</span>
                     {% endif %}
                 </td>
                 <td class="table-actions-cell">
                     <div class="btn-group btn-group-sm">
-                        <a href="{{ url_for('avrech.view', id=avrech.id) }}" 
-                           class="btn btn-table-action btn-outline-primary" title="צפייה">
+                        <a href="{{ url_for('avrech.view', id=avrech.id) }}"
+                            class="btn btn-table-action btn-outline-primary" title="צפייה">
                             <i class="fas fa-eye"></i>
                         </a>
-                        <a href="{{ url_for('avrech.edit', id=avrech.id) }}" 
-                           class="btn btn-table-action btn-outline-secondary" title="עריכה">
+                        <a href="{{ url_for('avrech.edit', id=avrech.id) }}"
+                            class="btn btn-table-action btn-outline-secondary" title="עריכה">
                             <i class="fas fa-edit"></i>
                         </a>
-                        <a href="{{ url_for('attendance.history', avrech_id=avrech.id) }}" 
-                           class="btn btn-table-action btn-outline-info" title="היסטוריית נוכחות">
+                        <a href="{{ url_for('attendance.history', avrech_id=avrech.id) }}"
+                            class="btn btn-table-action btn-outline-info" title="היסטוריית נוכחות">
                             <i class="fas fa-calendar-alt"></i>
                         </a>
                     </div>
@@ -189,7 +191,7 @@
             {% endfor %}
         </tbody>
     </table>
-    
+
     <div class="table-pagination">
         <div class="pagination-info">
             מציג {{ avrechim|length }} תוצאות
@@ -220,92 +222,92 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Initialize table search
-    const searchInput = document.getElementById('tableSearch');
-    const branchFilter = document.getElementById('branchFilter');
-    const statusFilter = document.getElementById('statusFilter');
-    
-    function filterTable() {
-        const searchTerm = searchInput.value.toLowerCase();
-        const selectedBranch = branchFilter.value;
-        const selectedStatus = statusFilter.value;
-        const rows = document.querySelectorAll('tbody tr');
-        
-        rows.forEach(function(row) {
-            const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
-            const idNumber = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
-            const phone = row.querySelector('td:nth-child(6)').textContent.toLowerCase();
-            const branch = row.querySelector('td:nth-child(4)').textContent;
-            const status = row.querySelector('td:nth-child(7) .status-badge').classList.contains('status-active') ? 'active' : 'inactive';
-            
-            const matchesSearch = name.includes(searchTerm) || idNumber.includes(searchTerm) || phone.includes(searchTerm);
-            const matchesBranch = !selectedBranch || branch.includes(selectedBranch);
-            const matchesStatus = !selectedStatus || status === selectedStatus;
-            
-            if (matchesSearch && matchesBranch && matchesStatus) {
-                row.style.display = '';
-            } else {
-                row.style.display = 'none';
-            }
-        });
-        
-        updateVisibleCount();
-    }
-    
-    function updateVisibleCount() {
-        const visibleRows = document.querySelectorAll('tbody tr[style=""]').length;
-        const totalRows = document.querySelectorAll('tbody tr').length;
-        const paginationInfo = document.querySelector('.pagination-info');
-        if (paginationInfo) {
-            paginationInfo.textContent = `מציג ${visibleRows} מתוך ${totalRows} תוצאות`;
-        }
-    }
-    
-    // Add event listeners
-    searchInput.addEventListener('input', filterTable);
-    branchFilter.addEventListener('change', filterTable);
-    statusFilter.addEventListener('change', filterTable);
-    
-    // Export functionality
-    window.exportTable = function() {
-        const table = document.querySelector('table');
-        const rows = Array.from(table.querySelectorAll('tr:not([style*="display: none"])'));
-        
-        let csv = '';
-        rows.forEach(function(row, index) {
-            const cols = row.querySelectorAll('th, td');
-            const rowData = [];
-            
-            cols.forEach(function(col, colIndex) {
-                // Skip checkbox column and actions column
-                if (colIndex === 0 || colIndex === cols.length - 1) return;
-                
-                let cellText = col.textContent.trim();
-                // Clean up the text
-                cellText = cellText.replace(/\s+/g, ' ').replace(/"/g, '""');
-                rowData.push('"' + cellText + '"');
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize table search
+        const searchInput = document.getElementById('tableSearch');
+        const branchFilter = document.getElementById('branchFilter');
+        const statusFilter = document.getElementById('statusFilter');
+
+        function filterTable() {
+            const searchTerm = searchInput.value.toLowerCase();
+            const selectedBranch = branchFilter.value;
+            const selectedStatus = statusFilter.value;
+            const rows = document.querySelectorAll('tbody tr');
+
+            rows.forEach(function (row) {
+                const name = row.querySelector('td:nth-child(2)').textContent.toLowerCase();
+                const idNumber = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+                const phone = row.querySelector('td:nth-child(6)').textContent.toLowerCase();
+                const branch = row.querySelector('td:nth-child(4)').textContent;
+                const status = row.querySelector('td:nth-child(7) .status-badge').classList.contains('status-active') ? 'active' : 'inactive';
+
+                const matchesSearch = name.includes(searchTerm) || idNumber.includes(searchTerm) || phone.includes(searchTerm);
+                const matchesBranch = !selectedBranch || branch.includes(selectedBranch);
+                const matchesStatus = !selectedStatus || status === selectedStatus;
+
+                if (matchesSearch && matchesBranch && matchesStatus) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
             });
-            
-            if (rowData.length > 0) {
-                csv += rowData.join(',') + '\n';
+
+            updateVisibleCount();
+        }
+
+        function updateVisibleCount() {
+            const visibleRows = document.querySelectorAll('tbody tr[style=""]').length;
+            const totalRows = document.querySelectorAll('tbody tr').length;
+            const paginationInfo = document.querySelector('.pagination-info');
+            if (paginationInfo) {
+                paginationInfo.textContent = `מציג ${visibleRows} מתוך ${totalRows} תוצאות`;
             }
-        });
-        
-        // Create and download CSV
-        const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', 'avrechim_list_' + new Date().toISOString().slice(0,10) + '.csv');
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    };
-    
-    // Update count on page load
-    updateVisibleCount();
-});
+        }
+
+        // Add event listeners
+        searchInput.addEventListener('input', filterTable);
+        branchFilter.addEventListener('change', filterTable);
+        statusFilter.addEventListener('change', filterTable);
+
+        // Export functionality
+        window.exportTable = function () {
+            const table = document.querySelector('table');
+            const rows = Array.from(table.querySelectorAll('tr:not([style*="display: none"])'));
+
+            let csv = '';
+            rows.forEach(function (row, index) {
+                const cols = row.querySelectorAll('th, td');
+                const rowData = [];
+
+                cols.forEach(function (col, colIndex) {
+                    // Skip checkbox column and actions column
+                    if (colIndex === 0 || colIndex === cols.length - 1) return;
+
+                    let cellText = col.textContent.trim();
+                    // Clean up the text
+                    cellText = cellText.replace(/\s+/g, ' ').replace(/"/g, '""');
+                    rowData.push('"' + cellText + '"');
+                });
+
+                if (rowData.length > 0) {
+                    csv += rowData.join(',') + '\n';
+                }
+            });
+
+            // Create and download CSV
+            const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'avrechim_list_' + new Date().toISOString().slice(0, 10) + '.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
+
+        // Update count on page load
+        updateVisibleCount();
+    });
 </script>
 {% endblock %}

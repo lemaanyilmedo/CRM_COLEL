@@ -1,6 +1,6 @@
 // JavaScript for Kolel CRM System
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Initialize tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
     var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
@@ -14,25 +14,25 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Auto-hide alerts after 5 seconds
-    setTimeout(function() {
+    setTimeout(function () {
         var alerts = document.querySelectorAll('.alert.alert-dismissible');
-        alerts.forEach(function(alert) {
+        alerts.forEach(function (alert) {
             var bsAlert = new bootstrap.Alert(alert);
             bsAlert.close();
         });
     }, 5000);
-    
+
     // Initialize sidebar functionality
     initializeSidebar();
-    
+
     // Initialize table functionality
     initializeTables();
-    
+
     // Initialize search functionality  
     initializeSearch();
 
     // Confirm delete actions
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         if (e.target.classList.contains('btn-delete') || e.target.closest('.btn-delete')) {
             if (!confirm('האם אתה בטוח שברצונך למחוק? פעולה זו לא ניתנת לביטול.')) {
                 e.preventDefault();
@@ -43,8 +43,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Form validation
     var forms = document.querySelectorAll('.needs-validation');
-    Array.prototype.slice.call(forms).forEach(function(form) {
-        form.addEventListener('submit', function(event) {
+    Array.prototype.slice.call(forms).forEach(function (form) {
+        form.addEventListener('submit', function (event) {
             if (!form.checkValidity()) {
                 event.preventDefault();
                 event.stopPropagation();
@@ -70,8 +70,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Add time validation to time inputs
     var timeInputs = document.querySelectorAll('input[type="time"]');
-    timeInputs.forEach(function(input) {
-        input.addEventListener('blur', function() {
+    timeInputs.forEach(function (input) {
+        input.addEventListener('blur', function () {
             if (!validateTimeInput(this)) {
                 this.classList.add('is-invalid');
             } else {
@@ -83,10 +83,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Auto-calculate late minutes
     function calculateLateMinutes(entryTime, expectedTime) {
         if (!entryTime || !expectedTime) return 0;
-        
+
         var entry = new Date('1970-01-01T' + entryTime + ':00');
         var expected = new Date('1970-01-01T' + expectedTime + ':00');
-        
+
         if (entry > expected) {
             return Math.floor((entry - expected) / (1000 * 60));
         }
@@ -96,10 +96,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Auto-calculate early exit minutes
     function calculateEarlyExitMinutes(exitTime, expectedTime) {
         if (!exitTime || !expectedTime) return 0;
-        
+
         var exit = new Date('1970-01-01T' + exitTime + ':00');
         var expected = new Date('1970-01-01T' + expectedTime + ':00');
-        
+
         if (exit < expected) {
             return Math.floor((expected - exit) / (1000 * 60));
         }
@@ -110,11 +110,11 @@ document.addEventListener('DOMContentLoaded', function() {
     function initializeSearch() {
         var searchInput = document.getElementById('searchInput');
         if (searchInput) {
-            searchInput.addEventListener('input', function() {
+            searchInput.addEventListener('input', function () {
                 var searchTerm = this.value.toLowerCase();
                 var rows = document.querySelectorAll('tbody tr');
-                
-                rows.forEach(function(row) {
+
+                rows.forEach(function (row) {
                     var text = row.textContent.toLowerCase();
                     if (text.includes(searchTerm)) {
                         row.style.display = '';
@@ -134,8 +134,8 @@ document.addEventListener('DOMContentLoaded', function() {
         var originalText = button.innerHTML;
         button.innerHTML = '<span class="loading-spinner me-2"></span>טוען...';
         button.disabled = true;
-        
-        return function() {
+
+        return function () {
             button.innerHTML = originalText;
             button.disabled = false;
         };
@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
         var formData = new FormData(form);
         var submitBtn = form.querySelector('button[type="submit"]');
         var hideLoading = showLoading(submitBtn);
-        
+
         fetch(form.action, {
             method: 'POST',
             body: formData,
@@ -154,39 +154,39 @@ document.addEventListener('DOMContentLoaded', function() {
                 'X-Requested-With': 'XMLHttpRequest'
             }
         })
-        .then(response => response.json())
-        .then(data => {
-            hideLoading();
-            if (callback) callback(data);
-        })
-        .catch(error => {
-            hideLoading();
-            console.error('Error:', error);
-            showNotification('אירעה שגיאה בשליחת הטופס', 'error');
-        });
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (callback) callback(data);
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                showNotification('אירעה שגיאה בשליחת הטופס', 'error');
+            });
     }
 
     // Notification system
     function showNotification(message, type = 'info') {
-        var alertClass = type === 'error' ? 'alert-danger' : 
-                        type === 'success' ? 'alert-success' : 'alert-info';
-        
+        var alertClass = type === 'error' ? 'alert-danger' :
+            type === 'success' ? 'alert-success' : 'alert-info';
+
         var alertDiv = document.createElement('div');
         alertDiv.className = `alert ${alertClass} alert-dismissible fade show position-fixed`;
         alertDiv.style.top = '20px';
         alertDiv.style.right = '20px';
         alertDiv.style.zIndex = '9999';
         alertDiv.style.minWidth = '300px';
-        
+
         alertDiv.innerHTML = `
             ${message}
             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
         `;
-        
+
         document.body.appendChild(alertDiv);
-        
+
         // Auto remove after 5 seconds
-        setTimeout(function() {
+        setTimeout(function () {
             if (alertDiv.parentNode) {
                 var bsAlert = new bootstrap.Alert(alertDiv);
                 bsAlert.close();
@@ -198,14 +198,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function exportTableToExcel(tableId, filename = 'export.xlsx') {
         var table = document.getElementById(tableId);
         if (!table) return;
-        
+
         // Create workbook
         var wb = XLSX.utils.book_new();
         var ws = XLSX.utils.table_to_sheet(table);
-        
+
         // Add worksheet to workbook
         XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-        
+
         // Save file
         XLSX.writeFile(wb, filename);
     }
@@ -216,11 +216,11 @@ document.addEventListener('DOMContentLoaded', function() {
             'ינואר', 'פברואר', 'מרץ', 'אפריל', 'מאי', 'יוני',
             'יולי', 'אוגוסט', 'ספטמבר', 'אוקטובר', 'נובמבר', 'דצמבר'
         ];
-        
+
         var day = date.getDate();
         var month = hebrewMonths[date.getMonth()];
         var year = date.getFullYear();
-        
+
         return `${day} ב${month} ${year}`;
     }
 
@@ -251,48 +251,48 @@ function initializeSidebar() {
     const mobileToggle = document.getElementById('mobileToggle');
     const sidebarOverlay = document.getElementById('sidebarOverlay');
     const mainContent = document.getElementById('mainContent');
-    
+
     // Desktop sidebar toggle
     if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
+        sidebarToggle.addEventListener('click', function () {
             sidebar.classList.toggle('collapsed');
-            
+
             // Save state to localStorage
             localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
         });
     }
-    
+
     // Mobile sidebar toggle
     if (mobileToggle) {
-        mobileToggle.addEventListener('click', function() {
+        mobileToggle.addEventListener('click', function () {
             sidebar.classList.add('show');
             sidebarOverlay.classList.add('show');
         });
     }
-    
+
     // Close sidebar on overlay click (mobile)
     if (sidebarOverlay) {
-        sidebarOverlay.addEventListener('click', function() {
+        sidebarOverlay.addEventListener('click', function () {
             sidebar.classList.remove('show');
             sidebarOverlay.classList.remove('show');
         });
     }
-    
+
     // Restore sidebar state from localStorage
     const sidebarCollapsed = localStorage.getItem('sidebarCollapsed');
     if (sidebarCollapsed === 'true') {
         sidebar.classList.add('collapsed');
     }
-    
+
     // Set active nav item based on current URL
     const currentPath = window.location.pathname;
     const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
-    
-    navLinks.forEach(function(link) {
+
+    navLinks.forEach(function (link) {
         const href = link.getAttribute('href');
         if (href && currentPath === href) {
             link.classList.add('active');
-            
+
             // Expand parent submenu if needed
             const submenu = link.closest('.submenu');
             if (submenu) {
@@ -310,70 +310,70 @@ function initializeSidebar() {
 function initializeTables() {
     // Select all functionality
     const selectAllCheckboxes = document.querySelectorAll('.select-all-checkbox');
-    selectAllCheckboxes.forEach(function(checkbox) {
-        checkbox.addEventListener('change', function() {
+    selectAllCheckboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', function () {
             const table = checkbox.closest('.table-container');
             const rowCheckboxes = table.querySelectorAll('.row-checkbox');
             const bulkActions = table.querySelector('.bulk-actions');
-            
-            rowCheckboxes.forEach(function(rowCheckbox) {
+
+            rowCheckboxes.forEach(function (rowCheckbox) {
                 rowCheckbox.checked = checkbox.checked;
                 updateRowSelection(rowCheckbox);
             });
-            
+
             updateBulkActions(table);
         });
     });
-    
+
     // Individual row selection
     const rowCheckboxes = document.querySelectorAll('.row-checkbox');
-    rowCheckboxes.forEach(function(checkbox) {
-        checkbox.addEventListener('change', function() {
+    rowCheckboxes.forEach(function (checkbox) {
+        checkbox.addEventListener('change', function () {
             updateRowSelection(checkbox);
             updateBulkActions(checkbox.closest('.table-container'));
         });
     });
-    
+
     // Row click to edit (except when clicking on checkbox or action buttons)
     const tableRows = document.querySelectorAll('.table tbody tr[data-edit-url]');
-    tableRows.forEach(function(row) {
-        row.addEventListener('click', function(e) {
+    tableRows.forEach(function (row) {
+        row.addEventListener('click', function (e) {
             // Don't navigate if clicking on checkbox, button, or link
-            if (e.target.type === 'checkbox' || 
-                e.target.closest('.btn') || 
+            if (e.target.type === 'checkbox' ||
+                e.target.closest('.btn') ||
                 e.target.closest('a') ||
                 e.target.closest('.row-checkbox')) {
                 return;
             }
-            
+
             const editUrl = row.getAttribute('data-edit-url');
             if (editUrl) {
                 window.location.href = editUrl;
             }
         });
     });
-    
+
     // Table sorting
     const sortableHeaders = document.querySelectorAll('.table thead th.sortable');
-    sortableHeaders.forEach(function(header) {
-        header.addEventListener('click', function() {
+    sortableHeaders.forEach(function (header) {
+        header.addEventListener('click', function () {
             sortTable(header);
         });
     });
-    
+
     // Bulk action buttons
     const bulkActionButtons = document.querySelectorAll('.bulk-action-btn');
-    bulkActionButtons.forEach(function(button) {
-        button.addEventListener('click', function() {
+    bulkActionButtons.forEach(function (button) {
+        button.addEventListener('click', function () {
             const action = button.getAttribute('data-action');
             const table = button.closest('.table-container');
             const selectedRows = getSelectedRows(table);
-            
+
             if (selectedRows.length === 0) {
                 alert('אנא בחר לפחות שורה אחת');
                 return;
             }
-            
+
             handleBulkAction(action, selectedRows);
         });
     });
@@ -395,7 +395,7 @@ function updateBulkActions(table) {
     const bulkActions = table.querySelector('.bulk-actions');
     const bulkActionsText = table.querySelector('.bulk-actions-text');
     const selectAllCheckbox = table.querySelector('.select-all-checkbox');
-    
+
     if (bulkActions) {
         if (selectedCount > 0) {
             bulkActions.classList.add('show');
@@ -406,7 +406,7 @@ function updateBulkActions(table) {
             bulkActions.classList.remove('show');
         }
     }
-    
+
     // Update select all checkbox state
     if (selectAllCheckbox) {
         const totalCheckboxes = table.querySelectorAll('.row-checkbox').length;
@@ -419,8 +419,8 @@ function updateBulkActions(table) {
 function getSelectedRows(table) {
     const selectedCheckboxes = table.querySelectorAll('.row-checkbox:checked');
     const selectedRows = [];
-    
-    selectedCheckboxes.forEach(function(checkbox) {
+
+    selectedCheckboxes.forEach(function (checkbox) {
         const row = checkbox.closest('tr');
         const id = checkbox.value || row.getAttribute('data-id');
         if (id) {
@@ -431,14 +431,14 @@ function getSelectedRows(table) {
             });
         }
     });
-    
+
     return selectedRows;
 }
 
 // Handle bulk actions
 function handleBulkAction(action, selectedRows) {
     const ids = selectedRows.map(row => row.id);
-    
+
     switch (action) {
         case 'delete':
             if (confirm(`האם אתה בטוח שברצונך למחוק ${selectedRows.length} פריטים?`)) {
@@ -451,26 +451,26 @@ function handleBulkAction(action, selectedRows) {
                     },
                     body: JSON.stringify({ ids: ids })
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        selectedRows.forEach(row => row.row.remove());
-                        showNotification('הפריטים נמחקו בהצלחה', 'success');
-                    } else {
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            selectedRows.forEach(row => row.row.remove());
+                            showNotification('הפריטים נמחקו בהצלחה', 'success');
+                        } else {
+                            showNotification('שגיאה במחיקת הפריטים', 'error');
+                        }
+                    })
+                    .catch(error => {
                         showNotification('שגיאה במחיקת הפריטים', 'error');
-                    }
-                })
-                .catch(error => {
-                    showNotification('שגיאה במחיקת הפריטים', 'error');
-                });
+                    });
             }
             break;
-            
+
         case 'export':
             // Export selected rows
             window.location.href = window.location.pathname + '/export?ids=' + ids.join(',');
             break;
-            
+
         case 'activate':
         case 'deactivate':
             // Update status
@@ -480,22 +480,22 @@ function handleBulkAction(action, selectedRows) {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': getCSRFToken()
                 },
-                body: JSON.stringify({ 
-                    ids: ids, 
-                    status: action === 'activate' ? 'active' : 'inactive' 
+                body: JSON.stringify({
+                    ids: ids,
+                    status: action === 'activate' ? 'active' : 'inactive'
                 })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    } else {
+                        showNotification('שגיאה בעדכון הסטטוס', 'error');
+                    }
+                })
+                .catch(error => {
                     showNotification('שגיאה בעדכון הסטטוס', 'error');
-                }
-            })
-            .catch(error => {
-                showNotification('שגיאה בעדכון הסטטוס', 'error');
-            });
+                });
             break;
     }
 }
@@ -507,34 +507,34 @@ function sortTable(header) {
     const rows = Array.from(tbody.querySelectorAll('tr'));
     const columnIndex = Array.from(header.parentNode.children).indexOf(header);
     const isAscending = !header.classList.contains('sort-asc');
-    
+
     // Remove sort classes from all headers
     table.querySelectorAll('th').forEach(th => {
         th.classList.remove('sort-asc', 'sort-desc');
     });
-    
+
     // Add sort class to current header
     header.classList.add(isAscending ? 'sort-asc' : 'sort-desc');
-    
+
     // Sort rows
     rows.sort((a, b) => {
         const aValue = a.children[columnIndex].textContent.trim();
         const bValue = b.children[columnIndex].textContent.trim();
-        
+
         // Check if values are numbers
         const aNum = parseFloat(aValue.replace(/[^\d.-]/g, ''));
         const bNum = parseFloat(bValue.replace(/[^\d.-]/g, ''));
-        
+
         if (!isNaN(aNum) && !isNaN(bNum)) {
             return isAscending ? aNum - bNum : bNum - aNum;
         }
-        
+
         // String comparison
-        return isAscending ? 
-            aValue.localeCompare(bValue, 'he') : 
+        return isAscending ?
+            aValue.localeCompare(bValue, 'he') :
             bValue.localeCompare(aValue, 'he');
     });
-    
+
     // Append sorted rows
     rows.forEach(row => tbody.appendChild(row));
 }
@@ -546,7 +546,7 @@ function getCSRFToken() {
 }
 
 // Keyboard shortcuts
-document.addEventListener('keydown', function(e) {
+document.addEventListener('keydown', function (e) {
     // Ctrl+S to save (prevent default browser save)
     if (e.ctrlKey && e.key === 's') {
         e.preventDefault();
@@ -555,7 +555,7 @@ document.addEventListener('keydown', function(e) {
             saveBtn.click();
         }
     }
-    
+
     // Ctrl+N for new entry
     if (e.ctrlKey && e.key === 'n') {
         e.preventDefault();
@@ -564,7 +564,7 @@ document.addEventListener('keydown', function(e) {
             newBtn.click();
         }
     }
-    
+
     // ESC to close modals
     if (e.key === 'Escape') {
         var openModal = document.querySelector('.modal.show');

@@ -4,77 +4,85 @@
 
 {% block extra_css %}
 <style>
-.calendar-day {
-    height: 120px;
-    border: 1px solid #ddd;
-    position: relative;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+    .calendar-day {
+        height: 120px;
+        border: 1px solid #ddd;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
 
-.calendar-day:hover {
-    background-color: #f8f9fa;
-}
+    .calendar-day:hover {
+        background-color: #f8f9fa;
+    }
 
-.calendar-day.today {
-    background-color: #e3f2fd;
-    border-color: #2196f3;
-}
+    .calendar-day.today {
+        background-color: #e3f2fd;
+        border-color: #2196f3;
+    }
 
-.calendar-day.has-events {
-    background-color: #fff3e0;
-}
+    .calendar-day.has-events {
+        background-color: #fff3e0;
+    }
 
-.calendar-day-number {
-    position: absolute;
-    top: 5px;
-    right: 8px;
-    font-weight: bold;
-    color: #333;
-}
+    .calendar-day-number {
+        position: absolute;
+        top: 5px;
+        right: 8px;
+        font-weight: bold;
+        color: #333;
+    }
 
-.calendar-day.other-month .calendar-day-number {
-    color: #ccc;
-}
+    .calendar-day.other-month .calendar-day-number {
+        color: #ccc;
+    }
 
-.calendar-events {
-    position: absolute;
-    bottom: 5px;
-    left: 5px;
-    right: 5px;
-    font-size: 0.75rem;
-}
+    .calendar-events {
+        position: absolute;
+        bottom: 5px;
+        left: 5px;
+        right: 5px;
+        font-size: 0.75rem;
+    }
 
-.event-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    display: inline-block;
-    margin-left: 2px;
-}
+    .event-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        display: inline-block;
+        margin-left: 2px;
+    }
 
-.event-dot.holiday { background-color: #f44336; }
-.event-dot.study { background-color: #4caf50; }
-.event-dot.event { background-color: #ff9800; }
+    .event-dot.holiday {
+        background-color: #f44336;
+    }
 
-.calendar-nav {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    color: white;
-    border-radius: 10px;
-    padding: 20px;
-    margin-bottom: 20px;
-}
+    .event-dot.study {
+        background-color: #4caf50;
+    }
 
-.btn-calendar {
-    background: rgba(255, 255, 255, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: white;
-}
+    .event-dot.event {
+        background-color: #ff9800;
+    }
 
-.btn-calendar:hover {
-    background: rgba(255, 255, 255, 0.3);
-    color: white;
-}
+    .calendar-nav {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .btn-calendar {
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    .btn-calendar:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+    }
 </style>
 {% endblock %}
 
@@ -84,13 +92,13 @@
     <div class="row align-items-center">
         <div class="col-md-4">
             <div class="d-flex align-items-center">
-                <a href="{{ url_for('calendar.index', year=prev_month.year, month=prev_month.month) }}" 
-                   class="btn btn-calendar me-2">
+                <a href="{{ url_for('calendar.index', year=prev_month.year, month=prev_month.month) }}"
+                    class="btn btn-calendar me-2">
                     <i class="fas fa-chevron-right"></i>
                 </a>
                 <h3 class="mb-0">{{ month_name }} {{ current_year }}</h3>
-                <a href="{{ url_for('calendar.index', year=next_month.year, month=next_month.month) }}" 
-                   class="btn btn-calendar ms-2">
+                <a href="{{ url_for('calendar.index', year=next_month.year, month=next_month.month) }}"
+                    class="btn btn-calendar ms-2">
                     <i class="fas fa-chevron-left"></i>
                 </a>
             </div>
@@ -133,18 +141,18 @@
                                         {{ 'today' if day.date == today }}
                                         {{ 'other-month' if day.date.month != current_month }}
                                         {{ 'has-events' if day.events }}"
-                                 data-date="{{ day.date.strftime('%Y-%m-%d') }}">
-                                
+                                data-date="{{ day.date.strftime('%Y-%m-%d') }}">
+
                                 <div class="calendar-day-number">{{ day.date.day }}</div>
-                                
+
                                 <div class="calendar-events">
                                     {% for event in day.events %}
-                                        <div class="d-flex align-items-center mb-1">
-                                            <span class="event-dot {{ event.type }}"></span>
-                                            <span class="ms-1 text-truncate" title="{{ event.title }}">
-                                                {{ event.title[:15] }}{{ '...' if event.title|length > 15 }}
-                                            </span>
-                                        </div>
+                                    <div class="d-flex align-items-center mb-1">
+                                        <span class="event-dot {{ event.type }}"></span>
+                                        <span class="ms-1 text-truncate" title="{{ event.title }}">
+                                            {{ event.title[:15] }}{{ '...' if event.title|length > 15 }}
+                                        </span>
+                                    </div>
                                     {% endfor %}
                                 </div>
                             </div>
@@ -169,40 +177,41 @@
             </div>
             <div class="card-body">
                 {% if upcoming_events %}
-                    {% for event in upcoming_events %}
-                    <div class="d-flex align-items-center border-bottom py-3">
-                        <div class="flex-shrink-0">
-                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" 
-                                 style="width: 50px; height: 50px;">
-                                <span class="fw-bold">{{ event.date.day }}</span>
-                            </div>
+                {% for event in upcoming_events %}
+                <div class="d-flex align-items-center border-bottom py-3">
+                    <div class="flex-shrink-0">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center"
+                            style="width: 50px; height: 50px;">
+                            <span class="fw-bold">{{ event.date.day }}</span>
                         </div>
-                        <div class="flex-grow-1 ms-3">
-                            <h6 class="mb-1">{{ event.title }}</h6>
-                            <p class="text-muted mb-1">
-                                <i class="fas fa-calendar me-1"></i>
-                                {{ event.date.strftime('%d/%m/%Y') }}
-                                {% if event.time %}
-                                    <i class="fas fa-clock me-1 ms-2"></i>
-                                    {{ event.time.strftime('%H:%M') }}
-                                {% endif %}
-                            </p>
-                            {% if event.description %}
-                            <p class="text-muted mb-0 small">{{ event.description }}</p>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-1">{{ event.title }}</h6>
+                        <p class="text-muted mb-1">
+                            <i class="fas fa-calendar me-1"></i>
+                            {{ event.date.strftime('%d/%m/%Y') }}
+                            {% if event.time %}
+                            <i class="fas fa-clock me-1 ms-2"></i>
+                            {{ event.time.strftime('%H:%M') }}
                             {% endif %}
-                        </div>
-                        <div class="flex-shrink-0">
-                            <span class="badge bg-{{ 'danger' if event.type == 'holiday' else 'success' if event.type == 'study' else 'warning' }}">
-                                {{ event.type_display }}
-                            </span>
-                        </div>
+                        </p>
+                        {% if event.description %}
+                        <p class="text-muted mb-0 small">{{ event.description }}</p>
+                        {% endif %}
                     </div>
-                    {% endfor %}
+                    <div class="flex-shrink-0">
+                        <span
+                            class="badge bg-{{ 'danger' if event.type == 'holiday' else 'success' if event.type == 'study' else 'warning' }}">
+                            {{ event.type_display }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
                 {% else %}
-                    <div class="text-center text-muted py-4">
-                        <i class="fas fa-calendar fa-3x mb-3"></i>
-                        <p>אין אירועים השבוע</p>
-                    </div>
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-calendar fa-3x mb-3"></i>
+                    <p>אין אירועים השבוע</p>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -229,13 +238,14 @@
                 </div>
                 <hr>
                 <div class="text-center">
-                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addEventModal">
+                    <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal"
+                        data-bs-target="#addEventModal">
                         <i class="fas fa-plus me-1"></i>הוסף אירוע חדש
                     </button>
                 </div>
             </div>
         </div>
-        
+
         <!-- מיני לוח שנה -->
         <div class="card mt-3">
             <div class="card-header">
@@ -245,8 +255,8 @@
                 <div class="row text-center">
                     {% for month_num in range(1, 13) %}
                     <div class="col-3 mb-2">
-                        <a href="{{ url_for('calendar.index', year=current_year, month=month_num) }}" 
-                           class="btn btn-sm {{ 'btn-primary' if month_num == current_month else 'btn-outline-secondary' }}">
+                        <a href="{{ url_for('calendar.index', year=current_year, month=month_num) }}"
+                            class="btn btn-sm {{ 'btn-primary' if month_num == current_month else 'btn-outline-secondary' }}">
                             {{ month_num }}
                         </a>
                     </div>
@@ -304,17 +314,17 @@
 
 {% block extra_js %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Click on calendar day
-    document.querySelectorAll('.calendar-day').forEach(function(day) {
-        day.addEventListener('click', function() {
-            const date = this.getAttribute('data-date');
-            document.getElementById('event_date').value = date;
-            
-            const modal = new bootstrap.Modal(document.getElementById('addEventModal'));
-            modal.show();
+    document.addEventListener('DOMContentLoaded', function () {
+        // Click on calendar day
+        document.querySelectorAll('.calendar-day').forEach(function (day) {
+            day.addEventListener('click', function () {
+                const date = this.getAttribute('data-date');
+                document.getElementById('event_date').value = date;
+
+                const modal = new bootstrap.Modal(document.getElementById('addEventModal'));
+                modal.show();
+            });
         });
     });
-});
 </script>
 {% endblock %}

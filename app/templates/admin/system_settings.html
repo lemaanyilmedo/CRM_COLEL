@@ -49,7 +49,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- הגדרות זמן ונוכחות -->
     <div class="col-lg-6">
         <div class="card mb-4">
@@ -111,7 +111,8 @@
                 <form id="paymentSettings">
                     <div class="mb-3">
                         <label for="default_daily_amount" class="form-label">מלגה יומית ברירת מחדל (₪)</label>
-                        <input type="number" class="form-control" id="default_daily_amount" value="150" min="0" step="0.01">
+                        <input type="number" class="form-control" id="default_daily_amount" value="150" min="0"
+                            step="0.01">
                     </div>
                     <div class="mb-3">
                         <label for="late_penalty_rate" class="form-label">קיזוז לדקת איחור (₪)</label>
@@ -119,11 +120,13 @@
                     </div>
                     <div class="mb-3">
                         <label for="early_exit_penalty" class="form-label">קיזוז ליציאה מוקדמת לדקה (₪)</label>
-                        <input type="number" class="form-control" id="early_exit_penalty" value="1.5" min="0" step="0.01">
+                        <input type="number" class="form-control" id="early_exit_penalty" value="1.5" min="0"
+                            step="0.01">
                     </div>
                     <div class="mb-3">
                         <label for="taanit_dibur_bonus" class="form-label">בונוס תענית דיבור (₪)</label>
-                        <input type="number" class="form-control" id="taanit_dibur_bonus" value="20" min="0" step="0.01">
+                        <input type="number" class="form-control" id="taanit_dibur_bonus" value="20" min="0"
+                            step="0.01">
                     </div>
                     <div class="mb-3">
                         <label for="payment_day" class="form-label">יום תשלום בחודש</label>
@@ -137,7 +140,7 @@
             </div>
         </div>
     </div>
-    
+
     <!-- הגדרות מערכת -->
     <div class="col-lg-6">
         <div class="card mb-4">
@@ -281,96 +284,96 @@
 </div>
 
 <script>
-function saveAllSettings() {
-    // כאן נשמור את כל ההגדרות
-    const settings = {
-        general: {
-            system_name: document.getElementById('system_name').value,
-            organization_name: document.getElementById('organization_name').value,
-            contact_email: document.getElementById('contact_email').value,
-            contact_phone: document.getElementById('contact_phone').value
-        },
-        time: {
-            default_start_time: document.getElementById('default_start_time').value,
-            default_end_time: document.getElementById('default_end_time').value,
-            late_threshold: document.getElementById('late_threshold').value,
-            grace_period: document.getElementById('grace_period').value,
-            weekend_friday: document.getElementById('weekend_friday').checked,
-            weekend_saturday: document.getElementById('weekend_saturday').checked
-        },
-        payment: {
-            default_daily_amount: document.getElementById('default_daily_amount').value,
-            late_penalty_rate: document.getElementById('late_penalty_rate').value,
-            early_exit_penalty: document.getElementById('early_exit_penalty').value,
-            taanit_dibur_bonus: document.getElementById('taanit_dibur_bonus').value,
-            payment_day: document.getElementById('payment_day').value
-        },
-        system: {
-            backup_frequency: document.getElementById('backup_frequency').value,
-            session_timeout: document.getElementById('session_timeout').value,
-            enable_notifications: document.getElementById('enable_notifications').checked,
-            enable_sms: document.getElementById('enable_sms').checked,
-            enable_email: document.getElementById('enable_email').checked
-        }
-    };
-    
-    // שמירה למסד הנתונים (דרך AJAX)
-    fetch('/admin/save_settings', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(settings)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showAlert('ההגדרות נשמרו בהצלחה', 'success');
-        } else {
-            showAlert('שגיאה בשמירת ההגדרות', 'error');
-        }
-    })
-    .catch(error => {
-        showAlert('שגיאה בחיבור לשרת', 'error');
-    });
-}
+    function saveAllSettings() {
+        // כאן נשמור את כל ההגדרות
+        const settings = {
+            general: {
+                system_name: document.getElementById('system_name').value,
+                organization_name: document.getElementById('organization_name').value,
+                contact_email: document.getElementById('contact_email').value,
+                contact_phone: document.getElementById('contact_phone').value
+            },
+            time: {
+                default_start_time: document.getElementById('default_start_time').value,
+                default_end_time: document.getElementById('default_end_time').value,
+                late_threshold: document.getElementById('late_threshold').value,
+                grace_period: document.getElementById('grace_period').value,
+                weekend_friday: document.getElementById('weekend_friday').checked,
+                weekend_saturday: document.getElementById('weekend_saturday').checked
+            },
+            payment: {
+                default_daily_amount: document.getElementById('default_daily_amount').value,
+                late_penalty_rate: document.getElementById('late_penalty_rate').value,
+                early_exit_penalty: document.getElementById('early_exit_penalty').value,
+                taanit_dibur_bonus: document.getElementById('taanit_dibur_bonus').value,
+                payment_day: document.getElementById('payment_day').value
+            },
+            system: {
+                backup_frequency: document.getElementById('backup_frequency').value,
+                session_timeout: document.getElementById('session_timeout').value,
+                enable_notifications: document.getElementById('enable_notifications').checked,
+                enable_sms: document.getElementById('enable_sms').checked,
+                enable_email: document.getElementById('enable_email').checked
+            }
+        };
 
-function backupDatabase() {
-    showAlert('מתחיל גיבוי מסד הנתונים...', 'info');
-    // כאן נקרא לפונקציית גיבוי
-}
+        // שמירה למסד הנתונים (דרך AJAX)
+        fetch('/admin/save_settings', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(settings)
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showAlert('ההגדרות נשמרו בהצלחה', 'success');
+                } else {
+                    showAlert('שגיאה בשמירת ההגדרות', 'error');
+                }
+            })
+            .catch(error => {
+                showAlert('שגיאה בחיבור לשרת', 'error');
+            });
+    }
 
-function clearCache() {
-    showAlert('מנקה זיכרון מטמון...', 'info');
-    // כאן נקרא לפונקציית ניקוי מטמון
-}
+    function backupDatabase() {
+        showAlert('מתחיל גיבוי מסד הנתונים...', 'info');
+        // כאן נקרא לפונקציית גיבוי
+    }
 
-function exportData() {
-    showAlert('מתחיל ייצוא נתונים...', 'info');
-    // כאן נקרא לפונקציית ייצוא
-}
+    function clearCache() {
+        showAlert('מנקה זיכרון מטמון...', 'info');
+        // כאן נקרא לפונקציית ניקוי מטמון
+    }
 
-function systemReport() {
-    window.open('/admin/system_report', '_blank');
-}
+    function exportData() {
+        showAlert('מתחיל ייצוא נתונים...', 'info');
+        // כאן נקרא לפונקציית ייצוא
+    }
 
-function showAlert(message, type) {
-    const alertClass = type === 'success' ? 'alert-success' : 
-                      type === 'error' ? 'alert-error' : 
-                      type === 'info' ? 'alert-info' : 'alert-warning';
-    
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert ${alertClass} alert-dismissible fade show`;
-    alertDiv.innerHTML = `
+    function systemReport() {
+        window.open('/admin/system_report', '_blank');
+    }
+
+    function showAlert(message, type) {
+        const alertClass = type === 'success' ? 'alert-success' :
+            type === 'error' ? 'alert-error' :
+                type === 'info' ? 'alert-info' : 'alert-warning';
+
+        const alertDiv = document.createElement('div');
+        alertDiv.className = `alert ${alertClass} alert-dismissible fade show`;
+        alertDiv.innerHTML = `
         ${message}
         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    
-    document.body.insertBefore(alertDiv, document.body.firstChild);
-    
-    setTimeout(() => {
-        alertDiv.remove();
-    }, 5000);
-}
+
+        document.body.insertBefore(alertDiv, document.body.firstChild);
+
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
 </script>
 {% endblock %}

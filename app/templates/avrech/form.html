@@ -11,9 +11,9 @@
             <div class="card-header">
                 <h4 class="mb-0">
                     {% if action == 'add' %}
-                        <i class="fas fa-user-plus me-2"></i>הוספת אברך חדש
+                    <i class="fas fa-user-plus me-2"></i>הוספת אברך חדש
                     {% else %}
-                        <i class="fas fa-user-edit me-2"></i>עריכת {{ avrech.full_name }}
+                    <i class="fas fa-user-edit me-2"></i>עריכת {{ avrech.full_name }}
                     {% endif %}
                 </h4>
             </div>
@@ -26,47 +26,49 @@
                                 <i class="fas fa-user me-2"></i>פרטים אישיים
                             </h5>
                         </div>
-                        
+
                         <div class="col-md-6 mb-3">
-                            <label for="first_name" class="form-label">שם פרטי <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="first_name" name="first_name" 
-                                   value="{{ avrech.first_name if avrech else '' }}" required>
+                            <label for="first_name" class="form-label">שם פרטי <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="first_name" name="first_name"
+                                value="{{ avrech.first_name if avrech else '' }}" required>
                             <div class="invalid-feedback">שדה חובה</div>
                         </div>
-                        
+
                         <div class="col-md-6 mb-3">
-                            <label for="last_name" class="form-label">שם משפחה <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="last_name" name="last_name" 
-                                   value="{{ avrech.last_name if avrech else '' }}" required>
+                            <label for="last_name" class="form-label">שם משפחה <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="last_name" name="last_name"
+                                value="{{ avrech.last_name if avrech else '' }}" required>
                             <div class="invalid-feedback">שדה חובה</div>
                         </div>
-                        
+
                         <div class="col-md-6 mb-3">
-                            <label for="id_number" class="form-label">תעודת זהות <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" id="id_number" name="id_number" 
-                                   value="{{ avrech.id_number if avrech else '' }}" 
-                                   pattern="[0-9]{9}" maxlength="9" required>
+                            <label for="id_number" class="form-label">תעודת זהות <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="id_number" name="id_number"
+                                value="{{ avrech.id_number if avrech else '' }}" pattern="[0-9]{9}" maxlength="9"
+                                required>
                             <div class="form-text">9 ספרות בלבד</div>
                             <div class="invalid-feedback">הזן תעודת זהות חוקית</div>
                         </div>
-                        
+
                         <div class="col-md-6 mb-3">
                             <label for="phone" class="form-label">טלפון</label>
-                            <input type="tel" class="form-control" id="phone" name="phone" 
-                                   value="{{ avrech.phone if avrech else '' }}"
-                                   pattern="[0-9\-\+\s\(\)]+" placeholder="050-1234567">
+                            <input type="tel" class="form-control" id="phone" name="phone"
+                                value="{{ avrech.phone if avrech else '' }}" pattern="[0-9\-\+\s\(\)]+"
+                                placeholder="050-1234567">
                             <div class="invalid-feedback">פורמט טלפון לא חוקי</div>
                         </div>
-                        
+
                         <div class="col-12 mb-3">
                             <label for="email" class="form-label">דואר אלקטרוני</label>
-                            <input type="email" class="form-control" id="email" name="email" 
-                                   value="{{ avrech.email if avrech else '' }}"
-                                   placeholder="avrech@example.com">
+                            <input type="email" class="form-control" id="email" name="email"
+                                value="{{ avrech.email if avrech else '' }}" placeholder="avrech@example.com">
                             <div class="invalid-feedback">כתובת מייל לא חוקית</div>
                         </div>
                     </div>
-                    
+
                     <!-- הגדרות מערכת -->
                     <div class="row mb-4">
                         <div class="col-12">
@@ -74,32 +76,33 @@
                                 <i class="fas fa-cogs me-2"></i>הגדרות מערכת
                             </h5>
                         </div>
-                        
+
                         <div class="col-md-6 mb-3">
                             <label for="branch_id" class="form-label">סניף</label>
                             <select class="form-select" id="branch_id" name="branch_id">
                                 <option value="">בחר סניף (אופציונלי)</option>
                                 {% for branch in branches %}
-                                <option value="{{ branch.id }}" 
-                                    {{ 'selected' if avrech and avrech.branch_id == branch.id }}>
+                                <option value="{{ branch.id }}" {{ 'selected' if avrech and avrech.branch_id==branch.id
+                                    }}>
                                     {{ branch.name }}
                                 </option>
                                 {% endfor %}
                             </select>
                         </div>
-                        
+
                         <div class="col-md-6 mb-3">
-                            <label for="payment_profile_id" class="form-label">פרופיל תשלום <span class="text-danger">*</span></label>
+                            <label for="payment_profile_id" class="form-label">פרופיל תשלום <span
+                                    class="text-danger">*</span></label>
                             <select class="form-select" id="payment_profile_id" name="payment_profile_id" required>
                                 <option value="">בחר פרופיל תשלום</option>
                                 {% for profile in payment_profiles %}
-                                <option value="{{ profile.id }}" 
-                                    {{ 'selected' if avrech and avrech.payment_profile_id == profile.id }}>
+                                <option value="{{ profile.id }}" {{ 'selected' if avrech and
+                                    avrech.payment_profile_id==profile.id }}>
                                     {{ profile.name }}
                                     {% if profile.payment_method == 'daily_fixed' %}
-                                        (₪{{ profile.daily_amount }} ליום)
+                                    (₪{{ profile.daily_amount }} ליום)
                                     {% else %}
-                                        (₪{{ profile.monthly_target }} לחודש)
+                                    (₪{{ profile.monthly_target }} לחודש)
                                     {% endif %}
                                 </option>
                                 {% endfor %}
@@ -107,7 +110,7 @@
                             <div class="invalid-feedback">חובה לבחור פרופיל תשלום</div>
                         </div>
                     </div>
-                    
+
                     <!-- כפתורי פעולה -->
                     <div class="row">
                         <div class="col-12">
@@ -134,7 +137,7 @@
                 </form>
             </div>
         </div>
-        
+
         <!-- מידע נוסף -->
         {% if payment_profiles %}
         <div class="card mt-4">
@@ -151,13 +154,13 @@
                             <strong>{{ profile.name }}</strong><br>
                             <small class="text-muted">
                                 {% if profile.payment_method == 'daily_fixed' %}
-                                    תשלום יומי: ₪{{ profile.daily_amount }}
+                                תשלום יומי: ₪{{ profile.daily_amount }}
                                 {% else %}
-                                    יעד חודשי: ₪{{ profile.monthly_target }}
+                                יעד חודשי: ₪{{ profile.monthly_target }}
                                 {% endif %}
                                 <br>
-                                שעות: {{ profile.default_entry_time.strftime('%H:%M') }} - 
-                                       {{ profile.default_exit_time.strftime('%H:%M') }}
+                                שעות: {{ profile.default_entry_time.strftime('%H:%M') }} -
+                                {{ profile.default_exit_time.strftime('%H:%M') }}
                             </small>
                         </div>
                     </div>
@@ -172,49 +175,49 @@
 
 {% block extra_js %}
 <script>
-// ID number validation
-document.getElementById('id_number').addEventListener('input', function() {
-    let value = this.value.replace(/\D/g, ''); // Remove non-digits
-    this.value = value;
-    
-    if (value.length === 9) {
-        // Israeli ID validation algorithm
-        let sum = 0;
-        for (let i = 0; i < 9; i++) {
-            let digit = parseInt(value.charAt(i));
-            if (i % 2 === 1) {
-                digit *= 2;
-                if (digit > 9) {
-                    digit = Math.floor(digit / 10) + (digit % 10);
-                }
-            }
-            sum += digit;
-        }
-        
-        if (sum % 10 !== 0) {
-            this.setCustomValidity('תעודת זהות לא חוקית');
-        } else {
-            this.setCustomValidity('');
-        }
-    } else {
-        this.setCustomValidity('תעודת זהות חייבת להכיל 9 ספרות');
-    }
-});
+    // ID number validation
+    document.getElementById('id_number').addEventListener('input', function () {
+        let value = this.value.replace(/\D/g, ''); // Remove non-digits
+        this.value = value;
 
-// Phone number formatting
-document.getElementById('phone').addEventListener('input', function() {
-    let value = this.value.replace(/\D/g, '');
-    if (value.startsWith('972')) {
-        value = '0' + value.substring(3);
-    }
-    
-    if (value.length >= 3) {
-        if (value.length <= 7) {
-            this.value = value.substring(0, 3) + '-' + value.substring(3);
+        if (value.length === 9) {
+            // Israeli ID validation algorithm
+            let sum = 0;
+            for (let i = 0; i < 9; i++) {
+                let digit = parseInt(value.charAt(i));
+                if (i % 2 === 1) {
+                    digit *= 2;
+                    if (digit > 9) {
+                        digit = Math.floor(digit / 10) + (digit % 10);
+                    }
+                }
+                sum += digit;
+            }
+
+            if (sum % 10 !== 0) {
+                this.setCustomValidity('תעודת זהות לא חוקית');
+            } else {
+                this.setCustomValidity('');
+            }
         } else {
-            this.value = value.substring(0, 3) + '-' + value.substring(3, 7) + '-' + value.substring(7, 11);
+            this.setCustomValidity('תעודת זהות חייבת להכיל 9 ספרות');
         }
-    }
-});
+    });
+
+    // Phone number formatting
+    document.getElementById('phone').addEventListener('input', function () {
+        let value = this.value.replace(/\D/g, '');
+        if (value.startsWith('972')) {
+            value = '0' + value.substring(3);
+        }
+
+        if (value.length >= 3) {
+            if (value.length <= 7) {
+                this.value = value.substring(0, 3) + '-' + value.substring(3);
+            } else {
+                this.value = value.substring(0, 3) + '-' + value.substring(3, 7) + '-' + value.substring(7, 11);
+            }
+        }
+    });
 </script>
 {% endblock %}
