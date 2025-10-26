@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from app import create_app
-from app.models import db, User, Avrech, Branch, PaymentProfile, AttendanceLog, SystemCalendar, BonusRule
+from app.models import db, User, Avrech, Branch, PaymentProfile, AttendanceLog, SystemCalendar, BonusRule, CalendarEvent, DayTypeDefinition
 
 app = create_app()
 
@@ -19,7 +19,9 @@ def make_shell_context():
         'PaymentProfile': PaymentProfile,
         'AttendanceLog': AttendanceLog,
         'SystemCalendar': SystemCalendar,
-        'BonusRule': BonusRule
+        'BonusRule': BonusRule,
+        'CalendarEvent': CalendarEvent,
+        'DayTypeDefinition': DayTypeDefinition
     }
 
 @app.cli.command()
@@ -78,6 +80,21 @@ def init_db():
             description='בונוס יומי עבור שמירת תענית דיבור'
         )
         db.session.add(bonus)
+    
+    # Create default day types
+    day_types_data = [
+        {'name': 'יום רגיל', 'description': 'יום עבודה רגיל', 'payment_multiplier': 1.0, 'is_working_day': True, 'display_color': '#3498db'},
+        {'name': 'ר"ח', 'description': 'ראש חודש', 'payment_multiplier': 1.2, 'is_working_day': True, 'display_color': '#9b59b6'},
+        {'name': 'חול המועד', 'description': 'חול המועד', 'payment_multiplier': 1.5, 'is_working_day': True, 'display_color': '#e74c3c'},
+        {'name': 'ערב חג', 'description': 'ערב חג', 'payment_multiplier': 0.5, 'is_working_day': True, 'display_color': '#f39c12'},
+        {'name': 'חג', 'description': 'יום חג', 'payment_multiplier': 0.0, 'is_working_day': False, 'display_color': '#e74c3c'},
+        {'name': 'צום', 'description': 'יום צום', 'payment_multiplier': 1.3, 'is_working_day': True, 'display_color': '#95a5a6'},
+    ]
+    
+    for day_type_data in day_types_data:
+        if not DayTypeDefinition.query.filter_by(name=day_type_data['name']).first():
+            day_type = DayTypeDefinition(**day_type_data)
+            db.session.add(day_type)
     
     db.session.commit()
     print("Database initialized successfully!")

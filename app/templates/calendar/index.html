@@ -83,10 +83,100 @@
         background: rgba(255, 255, 255, 0.3);
         color: white;
     }
+
+    /* Context Menu Styles */
+    .context-menu {
+        position: fixed;
+        background: white;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        z-index: 9999;
+        min-width: 200px;
+        display: none;
+    }
+
+    .context-menu.show {
+        display: block;
+    }
+
+    .context-menu-item {
+        padding: 10px 15px;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .context-menu-item:last-child {
+        border-bottom: none;
+    }
+
+    .context-menu-item:hover {
+        background-color: #f5f5f5;
+    }
+
+    .context-menu-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 4px;
+        border: 2px solid #ddd;
+    }
+
+    /* Selected days styles */
+    .calendar-day.selected {
+        outline: 3px solid #2196f3;
+        outline-offset: -3px;
+        z-index: 10;
+    }
+
+    /* Day type indicator */
+    .day-type-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 8px;
+        border-radius: 3px 3px 0 0;
+    }
+
+    .day-type-badge {
+        position: absolute;
+        top: 5px;
+        left: 8px;
+        font-size: 0.7rem;
+        padding: 2px 6px;
+        border-radius: 3px;
+        color: white;
+        font-weight: bold;
+    }
+
+    /* Disable text selection while dragging */
+    .no-select {
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Context Menu -->
+<div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" data-action="clear">
+        <div class="context-menu-color" style="background-color: white;"></div>
+        <span>יום רגיל (ללא הגדרה)</span>
+    </div>
+    {% for day_type in day_types %}
+    <div class="context-menu-item" data-day-type-id="{{ day_type.id }}">
+        <div class="context-menu-color" style="background-color: {{ day_type.display_color }};"></div>
+        <span>{{ day_type.name }} (x{{ '%.1f' | format(day_type.payment_multiplier) }})</span>
+    </div>
+    {% endfor %}
+</div>
 <!-- ניווט חודש -->
 <div class="calendar-nav">
     <div class="row align-items-center">
@@ -137,18 +227,29 @@
                     <tr>
                         {% for day in week %}
                         <td class="p-0">
+                            {% if day.date %}
                             <div class="calendar-day 
                                         {{ 'today' if day.date == today }}
                                         {{ 'other-month' if day.date.month != current_month }}
                                         {{ 'has-events' if day.events }}"
-                                data-date="{{ day.date.strftime('%Y-%m-%d') }}">
+                                data-date="{{ day.date.strftime('%Y-%m-%d') }}"
+                                {% if day.system_day and day.system_day.day_type_def %}
+                                style="background-color: {{ day.system_day.day_type_def.display_color }}15;"
+                                {% endif %}>
+
+                                {% if day.system_day and day.system_day.day_type_def %}
+                                <div class="day-type-indicator" style="background-color: {{ day.system_day.day_type_def.display_color }};"></div>
+                                <div class="day-type-badge" style="background-color: {{ day.system_day.day_type_def.display_color }};">
+                                    {{ day.system_day.day_type_def.name[:4] }}
+                                </div>
+                                {% endif %}
 
                                 <div class="calendar-day-number">{{ day.date.day }}</div>
 
                                 <div class="calendar-events">
                                     {% for event in day.events %}
                                     <div class="d-flex align-items-center mb-1">
-                                        <span class="event-dot {{ event.type }}"></span>
+                                        <span class="event-dot {{ event.event_type }}"></span>
                                         <span class="ms-1 text-truncate" title="{{ event.title }}">
                                             {{ event.title[:15] }}{{ '...' if event.title|length > 15 }}
                                         </span>
@@ -156,6 +257,9 @@
                                     {% endfor %}
                                 </div>
                             </div>
+                            {% else %}
+                            <div class="calendar-day other-month"></div>
+                            {% endif %}
                         </td>
                         {% endfor %}
                     </tr>
@@ -201,7 +305,7 @@
                     </div>
                     <div class="flex-shrink-0">
                         <span
-                            class="badge bg-{{ 'danger' if event.type == 'holiday' else 'success' if event.type == 'study' else 'warning' }}">
+                            class="badge bg-{{ 'danger' if event.event_type == 'holiday' else 'success' if event.event_type == 'study' else 'warning' }}">
                             {{ event.type_display }}
                         </span>
                     </div>
@@ -315,15 +419,165 @@
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Click on calendar day
-        document.querySelectorAll('.calendar-day').forEach(function (day) {
-            day.addEventListener('click', function () {
+        const contextMenu = document.getElementById('contextMenu');
+        const calendarDays = document.querySelectorAll('.calendar-day[data-date]');
+        let selectedDays = new Set();
+        let isDragging = false;
+        let dragStartDay = null;
+
+        // Hide context menu when clicking elsewhere
+        document.addEventListener('click', function (e) {
+            if (!contextMenu.contains(e.target)) {
+                contextMenu.classList.remove('show');
+            }
+        });
+
+        // Prevent default context menu
+        document.addEventListener('contextmenu', function (e) {
+            if (e.target.closest('.calendar-day[data-date]')) {
+                e.preventDefault();
+            }
+        });
+
+        calendarDays.forEach(function (day) {
+            // Right click - show context menu
+            day.addEventListener('contextmenu', function (e) {
+                e.preventDefault();
+                
+                // If this day is not selected, clear selection and select only this day
+                const clickedDate = this.getAttribute('data-date');
+                if (!selectedDays.has(clickedDate)) {
+                    clearSelection();
+                    selectDay(this);
+                }
+
+                // Show context menu
+                contextMenu.style.left = e.pageX + 'px';
+                contextMenu.style.top = e.pageY + 'px';
+                contextMenu.classList.add('show');
+            });
+
+            // Mouse down - start drag selection
+            day.addEventListener('mousedown', function (e) {
+                // Only on left click
+                if (e.button === 0) {
+                    e.preventDefault();
+                    isDragging = true;
+                    dragStartDay = this;
+                    
+                    // If not holding Ctrl, clear previous selection
+                    if (!e.ctrlKey && !e.metaKey) {
+                        clearSelection();
+                    }
+                    
+                    selectDay(this);
+                    document.body.classList.add('no-select');
+                }
+            });
+
+            // Mouse enter during drag
+            day.addEventListener('mouseenter', function (e) {
+                if (isDragging) {
+                    selectDay(this);
+                }
+            });
+
+            // Double click - open add event modal
+            day.addEventListener('dblclick', function (e) {
                 const date = this.getAttribute('data-date');
                 document.getElementById('event_date').value = date;
-
                 const modal = new bootstrap.Modal(document.getElementById('addEventModal'));
                 modal.show();
             });
+        });
+
+        // Mouse up anywhere - end drag
+        document.addEventListener('mouseup', function () {
+            if (isDragging) {
+                isDragging = false;
+                dragStartDay = null;
+                document.body.classList.remove('no-select');
+            }
+        });
+
+        // Context menu item click
+        document.querySelectorAll('.context-menu-item').forEach(function (item) {
+            item.addEventListener('click', function () {
+                const dayTypeId = this.getAttribute('data-day-type-id');
+                const action = this.getAttribute('data-action');
+                
+                if (selectedDays.size === 0) {
+                    alert('לא נבחרו ימים');
+                    contextMenu.classList.remove('show');
+                    return;
+                }
+
+                // Get array of selected dates
+                const dates = Array.from(selectedDays);
+                
+                // Send to server
+                fetch('{{ url_for("calendar.set_day_type") }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        dates: dates,
+                        day_type_id: action === 'clear' ? null : dayTypeId
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        // Reload page to show changes
+                        window.location.reload();
+                    } else {
+                        alert('שגיאה: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('שגיאה בשמירת השינויים');
+                });
+
+                contextMenu.classList.remove('show');
+            });
+        });
+
+        function selectDay(dayElement) {
+            const date = dayElement.getAttribute('data-date');
+            if (date) {
+                selectedDays.add(date);
+                dayElement.classList.add('selected');
+            }
+        }
+
+        function clearSelection() {
+            selectedDays.clear();
+            calendarDays.forEach(function (day) {
+                day.classList.remove('selected');
+            });
+        }
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function (e) {
+            // Escape - clear selection and hide menu
+            if (e.key === 'Escape') {
+                clearSelection();
+                contextMenu.classList.remove('show');
+            }
+            
+            // Ctrl+A - select all days in current month
+            if ((e.ctrlKey || e.metaKey) && e.key === 'a') {
+                e.preventDefault();
+                clearSelection();
+                calendarDays.forEach(function (day) {
+                    if (!day.classList.contains('other-month')) {
+                        selectDay(day);
+                    }
+                });
+            }
         });
     });
 </script>

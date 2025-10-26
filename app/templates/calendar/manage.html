@@ -131,11 +131,53 @@
                 </h5>
             </div>
             <div class="card-body">
+                {% if events %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>כותרת</th>
+                                <th>תאריך</th>
+                                <th>שעה</th>
+                                <th>סוג</th>
+                                <th>תיאור</th>
+                                <th>פעולות</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                            <tr>
+                                <td><strong>{{ event.title }}</strong></td>
+                                <td>{{ event.date.strftime('%d/%m/%Y') }}</td>
+                                <td>{{ event.time.strftime('%H:%M') if event.time else '-' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'danger' if event.event_type == 'holiday' else 'success' if event.event_type == 'study' else 'warning' }}">
+                                        {{ event.type_display }}
+                                    </span>
+                                </td>
+                                <td>{{ (event.description[:50] + '...' if event.description|length > 50 else event.description) if event.description else '-' }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" data-event-id="{{ event.id }}" data-bs-toggle="tooltip" title="עריכה">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form method="POST" action="{{ url_for('calendar.delete_event', event_id=event.id) }}" class="d-inline" onsubmit="return confirm('האם אתה בטוח שברצונך למחוק את האירוע?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="מחיקה">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
                 <div class="text-center text-muted py-4">
                     <i class="fas fa-calendar-plus fa-3x mb-3"></i>
                     <h5>אין אירועים למערכת עדיין</h5>
                     <p>התחל בהוספת אירועים חשובים למערכת</p>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>

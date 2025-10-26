@@ -189,12 +189,25 @@ class AttendanceLog(db.Model):
         
         # חישוב סכום בסיס
         if profile.payment_method == 'daily_fixed':
-            self.daily_base_amount = profile.daily_amount or 0
+            base_amount = profile.daily_amount or 0
         elif profile.payment_method == 'monthly_target':
             # יחושב לפי ימי הלימוד החודש
             working_days = SystemCalendar.get_working_days_in_month(self.date.year, self.date.month)
             if working_days > 0:
-                self.daily_base_amount = (profile.monthly_target or 0) / working_days
+                base_amount = (profile.monthly_target or 0) / working_days
+            else:
+                base_amount = 0
+        else:
+            base_amount = 0
+        
+        # יישום מקדם סוג היום (חג, ר"ח, וכו')
+        day_multiplier = 1.0
+        system_day = SystemCalendar.query.filter_by(date=self.date).first()
+        if system_day:
+            day_multiplier = system_day.effective_payment_multiplier
+        
+        # הסכום הבסיסי לאחר מקדם סוג היום
+        self.daily_base_amount = base_amount * day_multiplier
         
         # חישוב קנסות
         penalties = 0
@@ -256,19 +269,111 @@ class BonusRecord(db.Model):
     # Relationships
     bonus_rule = db.relationship('BonusRule', backref='records')
 
+class DayTypeDefinition(db.Model):
+    """הגדרת סוג יום - תבנית שלמה של חוקים (ר"ח, חול המועד, יום רגיל וכו')"""
+    __tablename__ = 'day_type_definition'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    branch_id = db.Column(db.Integer, db.ForeignKey('branch.id'), nullable=False)  # רמת סניף
+    name = db.Column(db.String(100), nullable=False)  # שם סוג היום
+    description = db.Column(db.Text)
+    is_default = db.Column(db.Boolean, default=False)  # האם זה "יום רגיל" - ברירת מחדל
+    
+    # === הגדרות בסיס ===
+    payment_multiplier = db.Column(db.Float, nullable=False, default=1.0)  # מקדם תשלום
+    is_working_day = db.Column(db.Boolean, default=True)  # האם יום עבודה
+    
+    # === הגדרות שעות ===
+    default_entry_time = db.Column(db.Time, nullable=False)  # שעת כניסה
+    default_exit_time = db.Column(db.Time, nullable=False)   # שעת יציאה
+    
+    # === הגדרות קיזוז איחורים ===
+    enable_late_penalty = db.Column(db.Boolean, default=True)
+    late_penalty_method = db.Column(db.String(20), default='fixed_amount')  # 'fixed_amount', 'per_minute'
+    late_penalty_amount = db.Column(db.Float, default=0)
+    late_penalty_interval = db.Column(db.Integer, default=15)  # דקות
+    late_grace_minutes = db.Column(db.Integer, default=0)  # דקות חסד (לא נספרות)
+    
+    # === הגדרות קיזוז יציאה מוקדמת ===
+    enable_early_exit_penalty = db.Column(db.Boolean, default=True)
+    early_exit_penalty_method = db.Column(db.String(20), default='fixed_amount')
+    early_exit_penalty_amount = db.Column(db.Float, default=0)
+    early_exit_penalty_interval = db.Column(db.Integer, default=15)
+    early_exit_grace_minutes = db.Column(db.Integer, default=0)
+    
+    # === הגדרות היעדרות ===
+    enable_absence_penalty = db.Column(db.Boolean, default=True)
+    absence_penalty_method = db.Column(db.String(20), default='full_day')  # 'full_day', 'fixed_amount'
+    absence_penalty_amount = db.Column(db.Float, default=0)
+    
+    # === הגדרות בונוסים ===
+    enable_daily_bonus = db.Column(db.Boolean, default=False)
+    daily_bonus_amount = db.Column(db.Float, default=0)
+    daily_bonus_description = db.Column(db.String(200))  # למשל: "תענית דיבור"
+    
+    # === תצוגה ===
+    display_color = db.Column(db.String(7), default='#3498db')  # HEX color
+    display_order = db.Column(db.Integer, default=0)  # סדר תצוגה
+    
+    is_active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    
+    # Relationships
+    branch = db.relationship('Branch', backref='day_types')
+    
+    # Unique constraint - שם ייחודי בתוך סניף
+    __table_args__ = (
+        db.UniqueConstraint('branch_id', 'name', name='unique_branch_day_type'),
+    )
+    
+    def __repr__(self):
+        return f'<DayType {self.name} (Branch: {self.branch_id}, x{self.payment_multiplier})>'
+    
+    @property
+    def full_name(self):
+        """שם מלא עם סניף"""
+        return f"{self.branch.name} - {self.name}" if self.branch else self.name
+
 class SystemCalendar(db.Model):
     """לוח שנה מערכתי"""
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False, unique=True)
-    day_type = db.Column(db.String(20), nullable=False, default='regular')  # 'regular', 'holiday', 'special'
+    day_type_id = db.Column(db.Integer, db.ForeignKey('day_type_definition.id'))  # קשר לסוג יום מוגדר
     description = db.Column(db.String(200))
     
-    # הגדרות מיוחדות ליום
+    # הגדרות מיוחדות ליום (override)
     custom_entry_time = db.Column(db.Time)
     custom_exit_time = db.Column(db.Time)
-    custom_daily_rate = db.Column(db.Float)
+    custom_payment_multiplier = db.Column(db.Float)  # מקדם תשלום מיוחד ליום זה
     
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    
+    # Relationship
+    day_type_def = db.relationship('DayTypeDefinition', backref='calendar_days')
+    
+    @property
+    def effective_payment_multiplier(self):
+        """מקדם התשלום האפקטיבי - מותאם אישית או מההגדרה"""
+        if self.custom_payment_multiplier is not None:
+            return self.custom_payment_multiplier
+        if self.day_type_def:
+            return self.day_type_def.payment_multiplier
+        return 1.0  # רגיל
+    
+    @property
+    def day_type_name(self):
+        """שם סוג היום"""
+        if self.day_type_def:
+            return self.day_type_def.name
+        return 'יום רגיל'
+    
+    @property
+    def is_working_day_flag(self):
+        """האם זה יום עבודה"""
+        if self.day_type_def:
+            return self.day_type_def.is_working_day
+        return True
     
     @staticmethod
     def get_working_days_in_month(year, month):
@@ -278,22 +383,50 @@ class SystemCalendar(db.Model):
         
         days_in_month = monthrange(year, month)[1]
         
-        # ספירת ימי חופש
-        holiday_count = SystemCalendar.query.filter(
+        # ספירת ימים שמוגדרים כלא-יום-עבודה
+        non_working_days = SystemCalendar.query.join(
+            DayTypeDefinition,
+            SystemCalendar.day_type_id == DayTypeDefinition.id
+        ).filter(
             and_(
                 extract('year', SystemCalendar.date) == year,
                 extract('month', SystemCalendar.date) == month,
-                SystemCalendar.day_type == 'holiday'
+                DayTypeDefinition.is_working_day == False
             )
         ).count()
         
-        return days_in_month - holiday_count
+        return days_in_month - non_working_days
     
     @staticmethod
     def is_working_day(date):
         """בדיקה האם יום עבודה"""
         calendar_day = SystemCalendar.query.filter_by(date=date).first()
         if calendar_day:
-            return calendar_day.day_type != 'holiday'
+            return calendar_day.is_working_day_flag
         # ברירת מחדל - כל יום הוא יום עבודה חוץ משבת
         return date.weekday() != 5  # 5 = Saturday
+
+class CalendarEvent(db.Model):
+    """אירוע בלוח שנה"""
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(200), nullable=False)
+    description = db.Column(db.Text)
+    date = db.Column(db.Date, nullable=False)
+    time = db.Column(db.Time)
+    event_type = db.Column(db.String(20), nullable=False, default='event')  # 'event', 'study', 'holiday'
+    created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    is_active = db.Column(db.Boolean, default=True)
+    
+    # Relationship
+    creator = db.relationship('User', backref='calendar_events')
+    
+    @property
+    def type_display(self):
+        """תרגום סוג האירוע"""
+        type_map = {
+            'event': 'אירוע כללי',
+            'study': 'לימודים/שיעור',
+            'holiday': 'חג/מועד'
+        }
+        return type_map.get(self.event_type, 'אירוע כללי')

@@ -1,0 +1,346 @@
+{% extends "base.html" %}
+
+{% block title %}ניהול סוגי ימים{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i class="fas fa-calendar-day me-2"></i>ניהול סוגי ימים
+            </h2>
+            <div>
+                <select class="form-select d-inline-block" style="width: auto;" onchange="window.location.href='{{ url_for('admin.day_types') }}?branch_id=' + this.value">
+                    <option value="">בחר סניף</option>
+                    {% for branch in branches %}
+                    <option value="{{ branch.id }}" {% if branch.id == selected_branch_id %}selected{% endif %}>
+                        {{ branch.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="btn btn-primary ms-2" data-bs-toggle="modal" data-bs-target="#addDayTypeModal">
+                    <i class="fas fa-plus me-2"></i>הוסף סוג יום
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>סוגי ימים מוגדרים
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if day_types %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th style="width: 50px;"></th>
+                                <th>שם</th>
+                                <th>תיאור</th>
+                                <th>מקדם</th>
+                                <th>שעות</th>
+                                <th>קיזוז איחור</th>
+                                <th>בונוס יומי</th>
+                                <th>ימים בשימוש</th>
+                                <th style="width: 100px;">פעולות</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for day_type in day_types %}
+                            <tr>
+                                <td>
+                                    <div style="width: 30px; height: 30px; background-color: {{ day_type.display_color }}; border-radius: 5px; border: 2px solid #ddd;"></div>
+                                </td>
+                                <td>
+                                    <strong>{{ day_type.name }}</strong>
+                                    {% if day_type.is_default %}
+                                    <span class="badge bg-primary">ברירת מחדל</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ day_type.description or '-' }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if day_type.payment_multiplier >= 1.0 else 'warning' if day_type.payment_multiplier > 0 else 'secondary' }}">
+                                        x{{ '%.1f' | format(day_type.payment_multiplier) }}
+                                    </span>
+                                    {% if not day_type.is_working_day %}
+                                    <br><small class="text-muted">לא יום עבודה</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if day_type.is_working_day %}
+                                    <small>{{ day_type.default_entry_time.strftime('%H:%M') if day_type.default_entry_time else '-' }} - {{ day_type.default_exit_time.strftime('%H:%M') if day_type.default_exit_time else '-' }}</small>
+                                    {% else %}
+                                    <small class="text-muted">-</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if day_type.enable_late_penalty %}
+                                    <span class="badge bg-warning text-dark">₪{{ day_type.late_penalty_amount }}</span>
+                                    {% if day_type.late_grace_minutes > 0 %}
+                                    <br><small class="text-muted">אחרי {{ day_type.late_grace_minutes }} דק'</small>
+                                    {% endif %}
+                                    {% else %}
+                                    <small class="text-muted">-</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if day_type.enable_daily_bonus %}
+                                    <span class="badge bg-success">+₪{{ day_type.daily_bonus_amount }}</span>
+                                    {% if day_type.daily_bonus_description %}
+                                    <br><small class="text-muted">{{ day_type.daily_bonus_description[:20] }}...</small>
+                                    {% endif %}
+                                    {% else %}
+                                    <small class="text-muted">-</small>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="badge bg-info">{{ day_type.calendar_days|length }} ימים</span>
+                                </td>
+                                <td>
+                                    <button class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="עריכה">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <form method="POST" action="{{ url_for('admin.delete_day_type', id=day_type.id) }}" class="d-inline" onsubmit="return confirm('האם אתה בטוח?')">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger" data-bs-toggle="tooltip" title="מחיקה">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-calendar-day fa-3x mb-3"></i>
+                    <h5>אין סוגי ימים מוגדרים</h5>
+                    <p>בחר סניף והתחל בהוספת סוג יום ראשון</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle me-2"></i>הסבר על סוגי ימים
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6><strong>מקדם תשלום:</strong></h6>
+                        <ul>
+                            <li><strong>1.0</strong> - תשלום רגיל (100%)</li>
+                            <li><strong>1.5</strong> - תשלום וחצי (חול המועד)</li>
+                            <li><strong>1.2</strong> - תוספת 20% (ר"ח)</li>
+                            <li><strong>0.5</strong> - חצי תשלום (ערב חג)</li>
+                            <li><strong>0.0</strong> - ללא תשלום (חגים)</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6><strong>שדות מתקדמים:</strong></h6>
+                        <ul>
+                            <li><strong>שעות ברירת מחדל</strong> - שעות כניסה ויציאה צפויות</li>
+                            <li><strong>קיזוז איחור</strong> - סכום שיקוזז עבור כל דקת איחור</li>
+                            <li><strong>קיזוז יציאה מוקדמת</strong> - סכום שיקוזז עבור יציאה לפני השעה</li>
+                            <li><strong>בונוס יומי</strong> - סכום נוסף שיתווסף (למשל בצום)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- מודל הוספת סוג יום -->
+<div class="modal fade" id="addDayTypeModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">הוספת סוג יום חדש</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('admin.day_types') }}">
+                <div class="modal-body">
+                    <input type="hidden" name="branch_id" value="{{ selected_branch_id }}">
+                    
+                    <!-- פרטים בסיסיים -->
+                    <h6 class="border-bottom pb-2 mb-3">פרטים בסיסיים</h6>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="name" class="form-label">שם סוג היום <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="name" name="name" required placeholder='למשל: "חול המועד"'>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="display_color" class="form-label">צבע תצוגה</label>
+                            <input type="color" class="form-control form-control-color" id="display_color" name="display_color" value="#3498db">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">תיאור</label>
+                        <textarea class="form-control" id="description" name="description" rows="2" placeholder="תיאור אופציונלי"></textarea>
+                    </div>
+                    
+                    <!-- הגדרות תשלום -->
+                    <h6 class="border-bottom pb-2 mb-3 mt-4">הגדרות תשלום ועבודה</h6>
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <label for="payment_multiplier" class="form-label">מקדם תשלום <span class="text-danger">*</span></label>
+                            <input type="number" step="0.1" class="form-control" id="payment_multiplier" name="payment_multiplier" value="1.0" required>
+                            <small class="text-muted">1.0 = רגיל, 1.5 = וחצי</small>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label d-block">יום עבודה</label>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="is_working_day" name="is_working_day" checked onchange="toggleWorkingDayFields()">
+                                <label class="form-check-label" for="is_working_day">האברכים צריכים להגיע</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label d-block">ברירת מחדל</label>
+                            <div class="form-check form-switch">
+                                <input type="checkbox" class="form-check-input" id="is_default" name="is_default">
+                                <label class="form-check-label" for="is_default">סוג יום רגיל</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- שעות עבודה -->
+                    <div id="workingDayFields">
+                        <h6 class="border-bottom pb-2 mb-3 mt-4">שעות עבודה</h6>
+                        <div class="row">
+                            <div class="col-md-3 mb-3">
+                                <label for="entry_hour" class="form-label">שעת כניסה</label>
+                                <input type="number" class="form-control" id="entry_hour" name="entry_hour" min="0" max="23" value="8">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="entry_minute" class="form-label">דקה</label>
+                                <input type="number" class="form-control" id="entry_minute" name="entry_minute" min="0" max="59" value="0">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="exit_hour" class="form-label">שעת יציאה</label>
+                                <input type="number" class="form-control" id="exit_hour" name="exit_hour" min="0" max="23" value="13">
+                            </div>
+                            <div class="col-md-3 mb-3">
+                                <label for="exit_minute" class="form-label">דקה</label>
+                                <input type="number" class="form-control" id="exit_minute" name="exit_minute" min="0" max="59" value="0">
+                            </div>
+                        </div>
+                        
+                        <!-- קיזוזים -->
+                        <h6 class="border-bottom pb-2 mb-3 mt-4">קיזוזים וקנסות</h6>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="form-check form-switch mb-2">
+                                    <input type="checkbox" class="form-check-input" id="enable_late_penalty" name="enable_late_penalty" onchange="toggleLatePenalty()">
+                                    <label class="form-check-label" for="enable_late_penalty"><strong>קיזוז עבור איחור</strong></label>
+                                </div>
+                                <div id="latePenaltyFields" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <label for="late_penalty_amount" class="form-label">סכום קיזוז (₪)</label>
+                                            <input type="number" step="0.1" class="form-control" id="late_penalty_amount" name="late_penalty_amount" value="0">
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <label for="late_grace_minutes" class="form-label">זמן חסד (דקות)</label>
+                                            <input type="number" class="form-control" id="late_grace_minutes" name="late_grace_minutes" value="0">
+                                            <small class="text-muted">קיזוז יחול רק אחרי דקות אלו</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="form-check form-switch mb-2">
+                                    <input type="checkbox" class="form-check-input" id="enable_early_exit_penalty" name="enable_early_exit_penalty" onchange="toggleEarlyExitPenalty()">
+                                    <label class="form-check-label" for="enable_early_exit_penalty"><strong>קיזוז עבור יציאה מוקדמת</strong></label>
+                                </div>
+                                <div id="earlyExitPenaltyFields" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-12 mb-2">
+                                            <label for="early_exit_penalty_amount" class="form-label">סכום קיזוז (₪)</label>
+                                            <input type="number" step="0.1" class="form-control" id="early_exit_penalty_amount" name="early_exit_penalty_amount" value="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- בונוסים -->
+                        <h6 class="border-bottom pb-2 mb-3 mt-4">בונוסים</h6>
+                        <div class="card mb-3">
+                            <div class="card-body">
+                                <div class="form-check form-switch mb-2">
+                                    <input type="checkbox" class="form-check-input" id="enable_daily_bonus" name="enable_daily_bonus" onchange="toggleDailyBonus()">
+                                    <label class="form-check-label" for="enable_daily_bonus"><strong>בונוס יומי</strong></label>
+                                </div>
+                                <div id="dailyBonusFields" style="display: none;">
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <label for="daily_bonus_amount" class="form-label">סכום בונוס (₪)</label>
+                                            <input type="number" step="0.1" class="form-control" id="daily_bonus_amount" name="daily_bonus_amount" value="0">
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <label for="daily_bonus_description" class="form-label">תיאור</label>
+                                            <input type="text" class="form-control" id="daily_bonus_description" name="daily_bonus_description" placeholder='למשל: "בונוס צום"'>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ביטול</button>
+                    <button type="submit" class="btn btn-primary">הוסף סוג יום</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleWorkingDayFields() {
+    const isWorkingDay = document.getElementById('is_working_day').checked;
+    const workingDayFields = document.getElementById('workingDayFields');
+    workingDayFields.style.display = isWorkingDay ? 'block' : 'none';
+}
+
+function toggleLatePenalty() {
+    const enabled = document.getElementById('enable_late_penalty').checked;
+    const fields = document.getElementById('latePenaltyFields');
+    fields.style.display = enabled ? 'block' : 'none';
+}
+
+function toggleEarlyExitPenalty() {
+    const enabled = document.getElementById('enable_early_exit_penalty').checked;
+    const fields = document.getElementById('earlyExitPenaltyFields');
+    fields.style.display = enabled ? 'block' : 'none';
+}
+
+function toggleDailyBonus() {
+    const enabled = document.getElementById('enable_daily_bonus').checked;
+    const fields = document.getElementById('dailyBonusFields');
+    fields.style.display = enabled ? 'block' : 'none';
+}
+
+// Initialize on load
+document.addEventListener('DOMContentLoaded', function() {
+    toggleWorkingDayFields();
+});
+</script>
+{% endblock %}

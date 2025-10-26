@@ -3,243 +3,206 @@
 {% block title %}דשבורד ראשי - מערכת CRM כוללים{% endblock %}
 
 {% block content %}
-<!-- כותרת ראשית -->
-<div class="row mb-4">
-    <div class="col-12">
-        <h1 class="display-4 text-primary">
-            <i class="fas fa-tachometer-alt me-3"></i>
+<div class="section-title">
+    <div>
+        <h1 class="d-flex align-items-center gap-3 mb-2">
+            <span class="text-brand"><i class="fas fa-gauge-high fa-lg"></i></span>
             דשבורד ניהול הכוללים
         </h1>
-        <p class="lead text-muted">מבט כללי על פעילות היום ומצב האברכים</p>
+        <p class="section-title__meta">מבט על פעילות היום, נוכחות וסכומי מלגות</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a href="{{ url_for('attendance.daily') }}" class="btn btn-primary d-flex align-items-center gap-2">
+            <i class="fas fa-pen-to-square"></i>
+            רישום נוכחות מהיר
+        </a>
+        <a href="{{ url_for('reports.monthly') }}" class="btn btn-neutral d-flex align-items-center gap-2">
+            <i class="fas fa-chart-pie"></i>
+            דוח תשלומים חודשי
+        </a>
     </div>
 </div>
 
-<!-- כרטיסי סטטיסטיקה -->
-<div class="row mb-4">
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card bg-primary text-white h-100">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="mb-0">{{ total_avrechim }}</h3>
-                        <p class="mb-0">אברכים פעילים</p>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-users fa-2x"></i>
-                    </div>
-                </div>
+<div class="stats-grid mb-5">
+    <div class="stats-card">
+        <div class="d-flex align-items-start justify-content-between">
+            <div>
+                <div class="stats-card__label">אברכים פעילים</div>
+                <div class="stats-card__value">{{ total_avrechim }}</div>
+            </div>
+            <div class="stats-card__icon">
+                <i class="fas fa-users"></i>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card bg-success text-white h-100">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="mb-0">{{ present_today }}</h3>
-                        <p class="mb-0">נוכחים היום</p>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-check-circle fa-2x"></i>
-                    </div>
-                </div>
+    <div class="stats-card">
+        <div class="d-flex align-items-start justify-content-between">
+            <div>
+                <div class="stats-card__label">נוכחים היום</div>
+                <div class="stats-card__value">{{ present_today }}</div>
+            </div>
+            <div class="stats-card__icon">
+                <i class="fas fa-user-check"></i>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card bg-warning text-white h-100">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="mb-0">{{ late_today }}</h3>
-                        <p class="mb-0">איחורים היום</p>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-clock fa-2x"></i>
-                    </div>
-                </div>
+    <div class="stats-card">
+        <div class="d-flex align-items-start justify-content-between">
+            <div>
+                <div class="stats-card__label">איחורים היום</div>
+                <div class="stats-card__value">{{ late_today }}</div>
+            </div>
+            <div class="stats-card__icon">
+                <i class="fas fa-clock"></i>
             </div>
         </div>
     </div>
 
-    <div class="col-lg-3 col-md-6 mb-3">
-        <div class="card bg-danger text-white h-100">
-            <div class="card-body">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h3 class="mb-0">{{ absent_today }}</h3>
-                        <p class="mb-0">נעדרים היום</p>
-                    </div>
-                    <div class="col-auto">
-                        <i class="fas fa-times-circle fa-2x"></i>
-                    </div>
-                </div>
+    <div class="stats-card">
+        <div class="d-flex align-items-start justify-content-between">
+            <div>
+                <div class="stats-card__label">נעדרים היום</div>
+                <div class="stats-card__value">{{ absent_today }}</div>
+            </div>
+            <div class="stats-card__icon">
+                <i class="fas fa-user-xmark"></i>
             </div>
         </div>
     </div>
 </div>
 
-<!-- כפתורי פעולה מהירה -->
-<div class="row mb-4">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-bolt me-2"></i>פעולות מהירות
-                </h5>
+<div class="card mb-5">
+    <div class="card-header d-flex align-items-center justify-content-between">
+        <div class="title d-flex align-items-center gap-2">
+            <i class="fas fa-bolt text-brand"></i>
+            <span>פעולות מהירות</span>
+        </div>
+        <span class="text-muted small">קיצורי דרך לפעולות הניהול היומיומיות</span>
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('attendance.daily') }}" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                    <i class="fas fa-calendar-plus"></i>
+                    רישום נוכחות היום
+                </a>
             </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('attendance.daily') }}" class="btn btn-primary w-100">
-                            <i class="fas fa-calendar-plus me-2"></i>רישום נוכחות היום
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('avrech.add') }}" class="btn btn-success w-100">
-                            <i class="fas fa-user-plus me-2"></i>הוסף אברך חדש
-                        </a>
-                    </div>
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('reports.monthly') }}" class="btn btn-info w-100">
-                            <i class="fas fa-chart-bar me-2"></i>דוח תשלומים
-                        </a>
-                    </div>
-                    {% if current_user.is_admin() %}
-                    <div class="col-md-3 mb-2">
-                        <a href="{{ url_for('payment_profiles.list') }}" class="btn btn-warning w-100">
-                            <i class="fas fa-cog me-2"></i>פרופילי תשלום
-                        </a>
-                    </div>
-                    {% endif %}
-                </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('avrech.add') }}" class="btn btn-neutral w-100 d-flex align-items-center justify-content-center gap-2">
+                    <i class="fas fa-user-plus"></i>
+                    הוסף אברך חדש
+                </a>
             </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('reports.monthly') }}" class="btn btn-neutral w-100 d-flex align-items-center justify-content-center gap-2">
+                    <i class="fas fa-chart-bar"></i>
+                    דוח תשלומים
+                </a>
+            </div>
+            {% if current_user.is_admin() %}
+            <div class="col-md-3 col-sm-6">
+                <a href="{{ url_for('payment_profiles.list') }}" class="btn btn-neutral w-100 d-flex align-items-center justify-content-center gap-2">
+                    <i class="fas fa-sliders"></i>
+                    פרופילי תשלום
+                </a>
+            </div>
+            {% endif %}
         </div>
     </div>
 </div>
 
-<!-- טבלת אברכים מפורטת -->
-<div class="row">
-    <div class="col-12">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-list me-2"></i>רשימת אברכים ומצב נוכחות
-                </h5>
-                <span class="badge bg-primary">{{ avrechim_list|length }} אברכים</span>
-            </div>
-            <div class="card-body">
-                <div class="table-responsive">
-                    <table class="table table-hover">
-                        <thead class="table-light">
-                            <tr>
-                                <th>שם מלא</th>
-                                <th>סניף</th>
-                                <th>סטטוס היום</th>
-                                <th>כניסה</th>
-                                <th>יציאה</th>
-                                <th>סכום חודשי</th>
-                                <th>פעולות</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in avrechim_list %}
-                            <tr>
-                                <td>
-                                    <strong>{{ item.avrech.full_name }}</strong>
-                                </td>
-                                <td>
-                                    <span class="badge bg-secondary">{{ item.branch_name }}</span>
-                                </td>
-                                <td>
-                                    {% if item.today_status == 'present' %}
-                                    <span class="badge bg-success">נוכח</span>
-                                    {% elif item.today_status == 'late' %}
-                                    <span class="badge bg-warning">איחור</span>
-                                    {% elif item.today_status == 'absent' %}
-                                    <span class="badge bg-danger">נעדר</span>
-                                    {% elif item.today_status == 'early_exit' %}
-                                    <span class="badge bg-warning">יציאה מוקדמת</span>
-                                    {% else %}
-                                    <span class="badge bg-light text-dark">לא הוזן</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if item.today_entry %}
-                                    {{ item.today_entry.strftime('%H:%M') }}
-                                    {% else %}
-                                    <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    {% if item.today_exit %}
-                                    {{ item.today_exit.strftime('%H:%M') }}
-                                    {% else %}
-                                    <span class="text-muted">-</span>
-                                    {% endif %}
-                                </td>
-                                <td>
-                                    <strong class="text-success">₪{{ "{:,.0f}".format(item.monthly_total) }}</strong>
-                                </td>
-                                <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="{{ url_for('avrech.view', id=item.avrech.id) }}"
-                                            class="btn btn-outline-primary btn-sm">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ url_for('avrech.edit', id=item.avrech.id) }}"
-                                            class="btn btn-outline-secondary btn-sm">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-
-                {% if not avrechim_list %}
-                <div class="text-center py-4">
-                    <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">אין אברכים במערכת</h5>
-                    <p class="text-muted">התחל בהוספת אברכים למערכת</p>
-                    <a href="{{ url_for('avrech.add') }}" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i>הוסף אברך ראשון
-                    </a>
-                </div>
-                {% endif %}
-            </div>
+<div class="table-container">
+    <div class="table-header">
+        <div>
+            <h5 class="table-title d-flex align-items-center gap-2 mb-0">
+                <i class="fas fa-list"></i>
+                רשימת אברכים ומצב נוכחות
+            </h5>
+            <span class="section-title__meta">נתוני כניסה/יציאה וסטטוס יומי מעודכן</span>
         </div>
+        <span class="badge bg-primary">{{ avrechim_list|length }} אברכים</span>
     </div>
+
+    {% if avrechim_list %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>שם מלא</th>
+                    <th>סניף</th>
+                    <th>סטטוס היום</th>
+                    <th>כניסה</th>
+                    <th>יציאה</th>
+                    <th>סכום חודשי</th>
+                    <th class="text-center">פעולות</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in avrechim_list %}
+                <tr>
+                    <td class="fw-semibold">
+                        {{ item.avrech.full_name }}
+                    </td>
+                    <td>
+                        <span class="badge bg-secondary">{{ item.branch_name }}</span>
+                    </td>
+                    <td>
+                        {% if item.today_status == 'present' %}
+                        <span class="badge bg-success">נוכח</span>
+                        {% elif item.today_status == 'late' %}
+                        <span class="badge bg-warning">איחור</span>
+                        {% elif item.today_status == 'absent' %}
+                        <span class="badge bg-danger">נעדר</span>
+                        {% elif item.today_status == 'early_exit' %}
+                        <span class="badge bg-warning">יציאה מוקדמת</span>
+                        {% else %}
+                        <span class="badge bg-secondary">לא הוזן</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.today_entry %}
+                        {{ item.today_entry.strftime('%H:%M') }}
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if item.today_exit %}
+                        {{ item.today_exit.strftime('%H:%M') }}
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="fw-semibold text-brand">₪{{ "{:,.0f}".format(item.monthly_total) }}</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group" role="group">
+                            <a href="{{ url_for('avrech.view', id=item.avrech.id) }}" class="btn btn-outline-primary btn-sm">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{{ url_for('avrech.edit', id=item.avrech.id) }}" class="btn btn-neutral btn-sm">
+                                <i class="fas fa-pen"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state__icon"><i class="fas fa-users"></i></div>
+        <h5 class="mb-2">אין אברכים במערכת כרגע</h5>
+        <p class="section-title__meta mb-4">התחל בהוספת אברכים כדי לעקוב אחר נוכחות ומלגות</p>
+        <a href="{{ url_for('avrech.add') }}" class="btn btn-primary d-inline-flex align-items-center gap-2">
+            <i class="fas fa-plus"></i>
+            הוסף אברך ראשון
+        </a>
+    </div>
+    {% endif %}
 </div>
-{% endblock %}
-
-{% block extra_css %}
-<style>
-    .card {
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-        border: 1px solid rgba(0, 0, 0, 0.125);
-        transition: box-shadow 0.15s ease-in-out;
-    }
-
-    .card:hover {
-        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-    }
-
-    .display-4 {
-        font-weight: 300;
-    }
-
-    .table th {
-        border-top: none;
-        font-weight: 600;
-    }
-
-    .btn-group-sm>.btn {
-        padding: 0.25rem 0.5rem;
-    }
-</style>
 {% endblock %}
