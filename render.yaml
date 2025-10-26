@@ -4,11 +4,13 @@ services:
     env: python
     region: frankfurt
     plan: free
-    buildCommand: pip install -r requirements.txt
-    startCommand: python run.py
+    buildCommand: pip install -r requirements.txt && python init_db.py
+    startCommand: gunicorn run:app
     envVars:
       - key: SECRET_KEY
         generateValue: true
       - key: FLASK_ENV
         value: production
+      - key: DATABASE_URL
+        value: sqlite:///kolel_crm.db
     healthCheckPath: /
